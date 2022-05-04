@@ -1,0 +1,13 @@
+{% extends 'rack/base.html' %}
+
+{% block title %}
+	Список полок
+{% endblock %}
+
+{% block content %}
+	<div class="list-group">
+		{% for i in object_list %}
+			<a href="{{ i.get_absolute_url }}" class="list-group-item">{{ i.title }}</a>
+		{% endfor %}
+	</div>
+{% endblock %}

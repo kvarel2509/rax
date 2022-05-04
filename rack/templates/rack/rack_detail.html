@@ -1,0 +1,129 @@
+{% extends 'rack/base.html' %}
+{% load tags %}
+
+{% block title %}
+	Полка {{ object.title }}
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8">
+				<table style="width: 100%">
+					{% for i in object.size|range_ %}
+						{% index_ lst i as d %}
+						{% index_ u i as unit %}
+						<tr style="height: 35px">
+							{% if unit %}
+									<td style="width: 5%" rowspan="{{ unit.0 }}">{{ unit.1 }}</td>
+								{% endif %}
+							{% if d %}
+								<td style="background: {{ d.color }}" rowspan="{{ d.length }}">
+									{% if d.id %}
+										<div class="col-lg-1 text-left"><button type="button" class="btn btn-warning btn-xs text-left"
+												data-toggle="modal"
+												data-target="#myModal2">
+											Заметки
+										</button>
+										<div class="modal fade" id="myModal2" tabindex="-1" role="dialog">
+											<div class="modal-dialog" role="document">
+												<div class="modal-content">
+													<div class="modal-header">
+														<button type="button" class="close" data-dismiss="modal"
+																aria-label="Close"><span
+																aria-hidden="true">&times;</span></button>
+														<h4 class="modal-title" id="myModalLabel">Заметки</h4>
+													</div>
+													<div class="modal-body">
+														{{ d.note }}
+														<form method="post"
+															  action="{% url 'server_note_create' d.id %}">
+															{% csrf_token %}
+															{{ form_note.as_p }}
+															<button type="reset" class="btn btn-default"
+																	data-dismiss="modal">Отменить
+															</button>
+															<button type="submit" class="btn btn-primary">
+																Добавить
+															</button>
+														</form>
+													</div>
+												</div>
+											</div>
+										</div>
+										</div>
+									{% endif %}
+								<div class="col-lg-6 text-center">
+									<p class="h4">{{ d.title }}<br><small>{{ d.note }}</small></p>
+								</div>
+								<div class="col-lg-5 text-right">
+									{% if d.id %}
+										<a class="btn btn-success btn-xs"
+										   href="{% url 'server_move' d.id 'up1' %}">^
+											1</a>
+										<a class="btn btn-success btn-xs"
+										   href="{% url 'server_move' d.id 'up3' %}">^
+											3</a>
+										<a class="btn btn-danger btn-xs"
+										   href="{% url 'server_move' d.id 'down1' %}">v 1</a>
+										<a class="btn btn-danger btn-xs"
+										   href="{% url 'server_move' d.id 'down3' %}">v 3</a>
+										<a class="btn btn-success btn-xs"
+										   href="{% url 'server_move' d.id 'up_max' %}">^max</a>
+										<a class="btn btn-danger btn-xs"
+										   href="{% url 'server_move' d.id 'down_max' %}">v max</a>
+										<a class="btn btn-danger btn-xs"
+										   href="{% url 'server_delete' d.id %}">x</a>
+									{% endif %}
+								</div>
+								</td>
+							{% endif %}
+						</tr>
+					{% endfor %}
+	</table>
+	</div>
+	<div class="col-lg-4">
+		<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+			Добавить оборудование
+		</button>
+	</div>
+	</div>
+	</div>
+
+
+
+
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+							aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">Создание нового сервера</h4>
+				</div>
+				<div class="modal-body">
+					<form method="post" action="{% url 'server_create' object.pk %}">
+						{% csrf_token %}
+						<table style=''>
+							{{ form_server.as_table }}
+						</table>
+						<div class="modal-footer">
+							<button type="reset" class="btn btn-default" data-dismiss="modal">Отменить</button>
+							<button type="submit" class="btn btn-primary">Добавить</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<style>table, th, td {
+		border: 1px solid black;
+		text-align: center;
+	}</style>
+
+{% endblock %}

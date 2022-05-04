@@ -1,0 +1,16 @@
+{% extends 'rack/base.html' %}
+
+{% block title %}
+	Создать полку
+{% endblock %}
+
+{% block content %}
+	<form method="post">
+	{% csrf_token %}
+		<table>
+			{{ form.as_table }}
+		</table>
+
+	<button type="submit">Создать</button>
+	</form>
+{% endblock %}
