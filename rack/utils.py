@@ -28,7 +28,7 @@ def get_new_space_after_move(server, space, move_type):
 				space[index_start + 1] -= 3
 				space.insert(index_start, 3)
 				return space
-		for index, value in enumerate(space[index_start + 1:], start=index_start+1):
+		for index, value in enumerate(space[index_start + 2:], start=index_start+2):
 			if isinstance(value, int) and value >= server.length:
 				space.insert(index + 1, value - server.length)
 				space[index], space[index_start] = space[index_start], server.length
