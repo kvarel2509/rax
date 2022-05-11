@@ -48,10 +48,9 @@ deploy_bleeding:
   before_script:
     - docker info
   script:
-    - echo 'TODO: change registry address and image name' && exit 1
-    - echo $DOCKER_PASSWORD | docker login --username user --password-stdin docker.mycompany.local:5000
-    - docker build -t 'docker.mycompany.local:5000/mycompany/some-image:bleeding' .
-    - docker push 'docker.mycompany.local:5000/mycompany/some-image:bleeding'
+    - echo $DOCKER_PASSWORD | docker login --username m1kc --password-stdin docker.comearth.local:5000
+    - docker build -t 'docker.comearth.local:5000/comearth/rax:bleeding' .
+    - docker push 'docker.comearth.local:5000/comearth/rax:bleeding'
 
 deploy_main:
   when: manual
@@ -60,18 +59,17 @@ deploy_main:
   before_script:
     - docker info
   script:
-    - echo 'TODO: change registry address and image name' && exit 1
-    - echo $DOCKER_PASSWORD | docker login --username user --password-stdin docker.mycompany.local:5000
-    - docker build -t 'docker.mycompany.local:5000/mycompany/some-image' .
-    - docker push 'docker.mycompany.local:5000/mycompany/some-image'
+    - echo $DOCKER_PASSWORD | docker login --username m1kc --password-stdin docker.comearth.local:5000
+    - docker build -t 'docker.comearth.local:5000/comearth/rax' .
+    - docker push 'docker.comearth.local:5000/comearth/rax'
 
 # ISSUE: nobody can guarantee that image did not change between deploy_bleeding and deploy_promote. Use at your own risk.
 # deploy_promote:
 #   when: manual
 #   stage: deploy
 #   script:
-#     - docker tag 'docker.mycompany.local:5000/mycompany/some-image:bleeding' 'docker.mycompany.local:5000/mycompany/some-image'
-#     - docker push 'docker.mycompany.local:5000/mycompany/some-image'
+#     - docker tag 'docker.comearth.local:5000/comearth/rax:bleeding' 'docker.comearth.local:5000/comearth/rax'
+#     - docker push 'docker.comearth.local:5000/comearth/rax'
 
 
 # pages:
