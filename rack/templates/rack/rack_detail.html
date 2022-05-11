@@ -23,40 +23,15 @@
 										<div class="col-lg-1 text-left">
 											<button type="button" class="btn btn-warning btn-xs text-left bor"
 													data-toggle="modal"
-													data-target="#myModal2">
+													data-target="#myModal2-{{ d.id }}">
 												Заметки
 											</button>
-											<div class="modal fade" id="myModal2" tabindex="-1" role="dialog">
-												<div class="modal-dialog" role="document">
-													<div class="modal-content">
-														<div class="modal-header">
-															<button type="button" class="close" data-dismiss="modal"
-																	aria-label="Close"><span
-																	aria-hidden="true">&times;</span></button>
-															<h4 class="modal-title" id="myModalLabel">Заметки</h4>
-														</div>
-														<div class="modal-body">
-															<pre>{{ d.note }}</pre>
-															<form method="post"
-																  action="{% url 'server_note_create' d.id %}">
-																{% csrf_token %}
-																{{ form_note.as_p }}
-																<button type="reset" class="btn btn-default"
-																		data-dismiss="modal">Отменить
-																</button>
-																<button type="submit" class="btn btn-primary">
-																	Сохранить
-																</button>
-															</form>
-														</div>
-													</div>
-												</div>
-											</div>
+											{% get_note_form d %}
 										</div>
 									{% endif %}
 									<div class="col-lg-6 text-center">
 										{% if d.id %}
-										<strong style="padding-left: 10px; padding-right: 10px; background-color:#c9c9c9; border-radius: 6px;">{{ d.title }}</strong>
+											<strong style="padding-left: 10px; padding-right: 10px; background-color:#c9c9c9; border-radius: 6px;">{{ d.title }}</strong>
 										{% endif %}
 									</div>
 									<div class="col-lg-5 text-right">
@@ -87,43 +62,13 @@
 				</table>
 			</div>
 			<div class="col-lg-4">
-				<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+				<button type="button" class="btn btn-primary btn-lg" onclick="get_server_form()">
 					Добавить оборудование
 				</button>
+				<div id="form_server"></div>
 			</div>
 		</div>
 	</div>
-
-
-
-
-
-	<!-- Modal -->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-							aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">Создание нового сервера</h4>
-				</div>
-				<div class="modal-body">
-					<form method="post" action="{% url 'server_create' object.pk %}">
-						{% csrf_token %}
-						<table style=''>
-							{{ form_server.as_table }}
-						</table>
-						<div class="modal-footer">
-							<button type="reset" class="btn btn-default" data-dismiss="modal">Отменить</button>
-							<button type="submit" class="btn btn-primary">Добавить</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
 
 	<style>
 		table, th, td {
@@ -134,5 +79,24 @@
 			border-color: #0f0f0f;
 		}
 	</style>
+
+	<script>
+	function get_server_form() {
+		let x = document.getElementById('form_server')
+		x.innerHTML = `<form method="post" action="{% url 'server_create' object.pk %}">
+						{% csrf_token %}
+						<table style=''>
+							{{ form_server.as_table }}
+						</table>
+						<button type="reset" class="btn btn-default" onclick="hidden_server_form()">Отменить</button>
+						<button type="submit" class="btn btn-primary">Добавить</button>
+					</form>`
+	}
+	function hidden_server_form() {
+		let x = document.getElementById('form_server')
+		x.innerHTML = ''
+	}
+
+	</script>
 
 {% endblock %}

@@ -16,7 +16,7 @@ class ServerCreateForm(forms.Form):
 	length = forms.CharField(label='Размер')
 	s = forms.ChoiceField(choices=(('u', 'u'), ('1/3u', '1/3u')), label='Мера')
 	note = forms.CharField(label='Заметки', widget=forms.Textarea, required=False)
-	color = forms.CharField(widget=forms.TextInput(attrs={'type': 'color'}))
+	color = forms.CharField(widget=forms.TextInput(attrs={'type': 'color'}), initial='#c9c9c9')
 
 	def clean(self):
 		data = self.cleaned_data
@@ -31,5 +31,9 @@ class ServerCreateForm(forms.Form):
 		return data
 
 
-class ServerNoteForm(forms.Form):
-	note = forms.CharField(widget=forms.Textarea)
+class ServerNoteForm(forms.ModelForm):
+
+	class Meta:
+		model = Server
+		fields = ['note']
+		widgets = {'note': forms.Textarea}
