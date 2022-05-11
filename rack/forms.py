@@ -31,5 +31,9 @@ class ServerCreateForm(forms.Form):
 		return data
 
 
-class ServerNoteForm(forms.Form):
-	note = forms.CharField(widget=forms.Textarea)
+class ServerNoteForm(forms.ModelForm):
+
+	class Meta:
+		model = Server
+		fields = ['note']
+		widgets = {'note': forms.Textarea}

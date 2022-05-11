@@ -38,13 +38,11 @@ class RackDetailView(generic.DetailView):
 				context['lst'].extend([{'length': 1}] * i)
 			else:
 				server = get_object_or_404(queryset, pk=i['id'])
-				d = model_to_dict(server)
-				context['lst'].extend([d, *[''] * (server.length - 1)])
+				context['lst'].extend([server, *[''] * (server.length - 1)])
 		context['u'] = []
 		for i in range(self.object.size // 3, 0, -1):
 			context['u'].extend([(3, i), '', ''])
 		context['form_server'] = ServerCreateForm()
-		context['form_note'] = ServerNoteForm()
 		return context
 
 
@@ -78,19 +76,14 @@ class ServerCreateView(generic.FormView):
 		return reverse_lazy('rack_detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class ServerNoteCreateView(generic.View):
+class ServerNoteCreateView(generic.UpdateView):
 	"""Для создания заметки на сервер"""
-
-	def post(self, request, pk, *args, **kwargs):
-		self.obj = get_object_or_404(Server, pk=pk)
-		form = ServerNoteForm(request.POST)
-		if form.is_valid():
-			self.obj.note = form.cleaned_data['note']
-			self.obj.save()
-		return self.get_success_url()
+	form_class = ServerNoteForm
+	template_name = 'rack/server_note_create.html'
+	model = Server
 
 	def get_success_url(self):
-		return redirect(reverse_lazy('rack_detail', kwargs={'pk': self.obj.rack_id}))
+		return reverse_lazy('rack_detail', kwargs={'pk': self.object.rack_id})
 
 
 class MoveServerView(generic.View):
