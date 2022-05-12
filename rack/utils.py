@@ -1,6 +1,3 @@
-from django.forms import model_to_dict
-
-
 def get_parsing_list(lst):
 	result = []
 	for value in lst:
@@ -80,7 +77,7 @@ def parser_length(length):
 			x = length.split(i)
 			try:
 				return int(x[0].strip()) if i == '1/3u' else int(x[0].strip()) * 3
-			except:
+			except ValueError:
 				return False
 	return False
 
