@@ -23,7 +23,7 @@ class ServerCreateForm(forms.Form):
 		try:
 			data['length'] = int(data['length']) if data['s'] == '1/3u' else int(
 				data['length']) * 3
-		except:
+		except ValueError:
 			data['length'] = parser_length(data['length'])
 			if not data['length']:
 				raise ValidationError('Не удалось расшифровать размер сервера')

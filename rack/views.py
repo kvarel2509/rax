@@ -1,9 +1,9 @@
-from django.forms import model_to_dict
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
+
+from .forms import ServerNoteForm, ServerCreateForm, RackCreateForm
 from .models import Rack, Server
-from .forms import *
 from .utils import get_parsing_list, get_new_space_after_move, get_space_after_delete
 
 
