@@ -6,7 +6,7 @@ authors = ["alexey <a.parshin@comearth.ru>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-Django = "^4.0.4"
+Django = "<4"
 django-environ = "^0.8.1"
 whitenoise = "^6.0.0"
 psycopg2-binary = "^2.9.3"
