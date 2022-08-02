@@ -4,6 +4,7 @@ from django.views import generic
 
 from .forms import ServerNoteForm, ServerCreateForm, RackCreateForm
 from .models import Rack, Server
+from .services.rack import RackHelper
 from .utils import get_parsing_list, get_new_space_after_move, get_space_after_delete
 
 
@@ -31,18 +32,18 @@ class RackDetailView(generic.DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['lst'] = []
-		queryset = Server.objects.filter(rack=self.object)
-		for i in self.object.space:
-			if isinstance(i, int):
-				context['lst'].extend([{'length': 1}] * i)
-			else:
-				server = get_object_or_404(queryset, pk=i['id'])
-				context['lst'].extend([server, *[''] * (server.length - 1)])
-		context['u'] = []
+		rack = RackHelper(self.object)
+		context['rack'] = rack.get_context_for_detail_view()
+		context['numbering'] = []
+
 		for i in range(self.object.size // 3, 0, -1):
-			context['u'].extend([(3, i), '', ''])
-		context['form_server'] = ServerCreateForm()
+			context['numbering'].extend([
+				{'length': 3, 'value': i},
+				{'length': 0, 'value': None},
+				{'length': 0, 'value': None}
+			])
+
+		context['server_creation_form'] = ServerCreateForm()
 		return context
 
 

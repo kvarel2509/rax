@@ -354,10 +354,3 @@ bh_unicode_properties.cache
 # Sublime-github package stores a github token in this file
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
-
-# End of https://www.toptal.com/developers/gitignore/api/django,python,code,sublimetext,pycharm
-/rack/static/
-/rack/migrations/0001_initial.py
-/rack/migrations/0002_remove_rack_user.py
-/rack/migrations/0003_alter_rack_options_server_color_alter_rack_size_and_more.py
-/rack/migrations/__init__.py
