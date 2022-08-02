@@ -8,6 +8,17 @@
 {% block content %}
 	<div class="container">
 		<div class="row">
+			{% if messages %}
+				{% for message in messages %}
+					{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+						<div class="alert alert-danger" role="alert">{{ message }}</div>
+					{% else %}
+						<div class="alert alert-info" role="alert">{{ message }}</div>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="row">
 			<div class="col-lg-8">
 				<table style="width: 100%">
 					{% for i in object.size|get_range %}
@@ -146,7 +157,7 @@
 							{{ server_creation_form.as_table }}
 						</table>
 						<button type="reset" class="btn btn-default" onclick="hidden_server_form()">Отменить</button>
-						<button type="submit" class="btn btn-primary">Добавить</button>
+						<button type="submit" data-turbo-action="replace" class="btn btn-primary">Добавить</button>
 					</form>`
 	}
 	function hidden_server_form() {

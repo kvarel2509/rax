@@ -6,6 +6,7 @@ from .forms import ServerNoteForm, ServerCreateForm, RackCreateForm
 from .models import Rack, Server
 from .services.rack import RackHelper
 from .utils import get_parsing_list, get_new_space_after_move, get_space_after_delete
+from django.contrib import messages
 
 
 class RackCreateView(generic.CreateView):
@@ -71,6 +72,10 @@ class ServerCreateView(generic.FormView):
 		if new_space:
 			self.obj.space = new_space
 			self.obj.save()
+		return super().form_valid(form)
+
+	def form_invalid(self, form):
+		messages.error(self.request, form.non_field_errors())
 		return super().form_valid(form)
 
 	def get_success_url(self):
