@@ -26,7 +26,7 @@ class ServerCreateForm(forms.Form):
 		except ValueError:
 			data['length'] = parser_length(data['length'])
 			if not data['length']:
-				raise ValidationError('Не удалось расшифровать размер сервера')
+				raise ValidationError('Сервер не добавлен: Не удалось расшифровать размер сервера')
 		data.pop('s')
 		return data
 
