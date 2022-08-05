@@ -93,17 +93,17 @@
 													</div>
 
 													<div class="col-lg-5">
-														<form id="server_delete" method="post" action="{% url 'server_delete' pk=row.server.id %}">
+														<form id="server_delete-{{ row.server.id }}" method="post" action="{% url 'server_delete' pk=row.server.id %}">
 															{% csrf_token %}
 														</form>
-														<form id="server-move" method="post" action="{% url 'server_move' pk=row.server.id %}">
+														<form id="server-move-{{ row.server.id }}" method="post" action="{% url 'server_move' pk=row.server.id %}">
 															{% csrf_token %}
 														</form>
 														<div>
 															<button
 																type="submit"
 																class="btn btn-success btn-xs rack-row-move"
-																form="server-move"
+																form="server-move-{{ row.server.id }}"
 																name="move_type"
 																value="up1"
 															>
@@ -112,7 +112,7 @@
 															<button
 																type="submit"
 																class="btn btn-success btn-xs rack-row-move"
-																form="server-move"
+																form="server-move-{{ row.server.id }}"
 																name="move_type"
 																value="up3"
 															>
@@ -121,7 +121,7 @@
 															<button
 																type="submit"
 																class="btn btn-danger btn-xs rack-row-move"
-																form="server-move"
+																form="server-move-{{ row.server.id }}"
 																name="move_type"
 																value="down1"
 															>
@@ -130,7 +130,7 @@
 															<button
 																type="submit"
 																class="btn btn-danger btn-xs rack-row-move"
-																form="server-move"
+																form="server-move-{{ row.server.id }}"
 																name="move_type"
 																value="down3"
 															>
@@ -139,7 +139,7 @@
 															<button
 																type="submit"
 																class="btn btn-success btn-xs rack-row-move"
-																form="server-move"
+																form="server-move-{{ row.server.id }}"
 																name="move_type"
 																value="up_max"
 															>
@@ -148,7 +148,7 @@
 															<button
 																type="submit"
 																class="btn btn-danger btn-xs rack-row-move"
-																form="server-move"
+																form="server-move-{{ row.server.id }}"
 																name="move_type"
 																value="down_max"
 															>
@@ -157,7 +157,7 @@
 															<button
 																type="submit"
 																class="btn btn-danger btn-xs rack-row-move"
-																form="server_delete"
+																form="server_delete-{{ row.server.id }}"
 															>
 																x
 															</button>
@@ -167,7 +167,7 @@
 											</div>
 										</td>
 									{% else %}
-										<td rowspan="{{ row.length }}">
+										<td rowspan="{{ row.length }}"></td>
 									{% endif %}
 								{% endif %}
 							</tr>
@@ -237,7 +237,7 @@
 	</div>
 
 	<style>
-		div.rack th, div.rack td {
+		div.rack tr, div.rack td {
 			border: 1px solid #888888;
 			text-align: center;
 			height: 10px;

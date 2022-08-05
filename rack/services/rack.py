@@ -122,6 +122,8 @@ class RackHelper:
 		new_space = []
 
 		for value in space:
+			if value == 0:
+				continue
 			if type(value) == int and new_space and type(new_space[-1]) == int:
 				new_space[-1] += value
 			else:

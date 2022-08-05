@@ -113,7 +113,6 @@ class PortCreateView(generic.CreateView):
 		port = form.save(commit=False)
 		port.server = self.server
 		Port.objects.bulk_create([port for _ in range(form.cleaned_data['count'])])
-		messages.success(self.request, 'Порты успешно добавлены')
 		return HttpResponseRedirect(self.get_url())
 
 	def get_url(self):
@@ -152,7 +151,6 @@ class ServerCreateView(generic.FormView):
 			server = ServerHelper().create_server(form.cleaned_data)
 			server = ServerHelper(server)
 			rack.put_server_in_space(server)
-			messages.success(self.request, 'Сервер успешно добавлен')
 		else:
 			messages.error(self.request, 'Сервер не добавлен. Нет свободного места')
 
@@ -184,6 +182,7 @@ class MoveServerView(generic.View):
 		server = ServerHelper(Server.objects.get(pk=server_pk))
 		rack = RackHelper(server.server.rack)
 		rack.move_server_in_space(server, self.request.POST.get('move_type'))
+		print(rack.rack.space)
 		return HttpResponseRedirect(self.get_url(rack.rack.pk))
 
 	@staticmethod

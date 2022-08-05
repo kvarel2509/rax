@@ -182,7 +182,7 @@
 									Тип:
 									<strong>{{ i.port.material }}</strong>
 									<small>
-										<button class="btn btn-link btn-xs" onclick="showElement('form-port-update-{{ i.port.pk }}')">Изменить</button>
+										<button class="btn btn-link btn-xs" onclick="showElement('form-port-update-{{ i.port.pk }}')">Применить</button>
 									</small>
 								</td>
 							</tr>
@@ -210,7 +210,7 @@
 										<table class="port-edit-form">{{ i.form.as_table }}</table>
 										<div class="button-form">
 											<button onclick="hiddenElement('form-port-update-{{ i.port.pk }}')" type="reset" class="btn btn-default">Отменить</button>
-											<button form="edit_port-{{ i.port.pk }}" type="submit" class="btn btn-primary">Изменить</button>
+											<button form="edit_port-{{ i.port.pk }}" type="submit" class="btn btn-primary">Применить</button>
 										</div>
 									</form>
 								</td>
