@@ -1,0 +1,272 @@
+{% extends 'rack/base.html' %}
+{% load tags %}
+
+{% block title %}
+	"{{ object.title }}"
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<form id="server_delete" method="post" action="{% url 'server_delete' pk=object.pk %}">{% csrf_token %}</form>
+				<a type="button" class="btn btn-default" href="{% url 'rack_detail' object.rack.pk %}">
+					Перейти к стойке
+				</a>
+				<a type="button" class="btn btn-info" href="{% url 'server_update' pk=object.pk %}">
+					Изменить параметры оборудования
+				</a>
+				<button form="server_delete" type="submit" class="btn btn-danger">
+					Удалить оборудование
+				</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12">
+				<h1>{{ object.title }}</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div>
+					<table class="server-description">
+						<tr>
+							<td>Заметки:</td>
+							<td>{{ object.note }}</td>
+						</tr>
+						<tr>
+							<td>Размер:</td>
+							<td>{{ object.length }}</td>
+						</tr>
+						<tr>
+							<td>Количество портов:</td>
+							<td>{{ ports|length }}</td>
+						</tr>
+						<tr>
+							<td>Основная скорость:</td>
+							<td>{{ object.base_speed }}</td>
+						</tr>
+						<tr>
+							<td>Основной тип порта:</td>
+							<td>{{ object.base_material }}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<hr>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<table class="ports-list">
+					<tr>
+						{% for i in ports %}
+							<td>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="25"
+									height="25"
+									fill="{{ i.port.color }}"
+									class="bi bi-displayport-fill"
+									viewBox="0 0 16 16"
+								>
+									<path d="M1 5a1 1 0 0 0-1 1v3.191a1 1 0 0 0 .553.894l1.618.81a1 1 0 0 0 .447.105H15a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm1.5 2h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8H3v.5a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5Z"></path>
+								</svg>
+							</td>
+						{% endfor %}
+					</tr>
+					<tr>
+						{% for i in numerator_ports %}
+							<td class="text-center">
+							{{ i }}
+							</td>
+						{% endfor %}
+					</tr>
+				</table>
+
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<hr>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="button-group">
+					<button
+						type="button"
+						class="btn btn-primary"
+						onclick="showElement('create-port')"
+					>
+						Добавить порты
+					</button>
+					<button
+						type="submit"
+						class="btn btn-warning"
+						form="del-port"
+					>
+						Удалить выбранные порты
+					</button>
+					<button
+						type="submit"
+						class="btn btn-danger"
+						form="del-port"
+						onclick="selectAllPorts()"
+					>
+						Удалить все порты
+					</button>
+				</div>
+
+				<div id="create-port" class="hidden">
+					<form method="post" action='{% url 'port_create' pk=object.pk %}'>
+						{% csrf_token %}
+						<table class="create-ports">
+							{{ create_port_form.as_table }}
+						</table>
+						<div class="button-form">
+							<button onclick="hiddenElement('create-port')" type="reset" class="btn btn-default">Отменить</button>
+							<button type="submit" class="btn btn-primary">Создать</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<hr>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<form id='del-port' method="post" action="{% url 'ports_delete' pk=object.pk %}">
+					{% csrf_token %}
+				</form>
+				{% for i in ports %}
+					<div>
+						<table class="port-description">
+							<tr>
+								<td>
+									<label for="port-{{ i.port.pk }}"></label>
+									<input class='port-checkbox' form="del-port" type="checkbox" id="port-{{ i.port.pk }}" name="del-port" value="{{ i.port.pk }}">
+								</td>
+
+								<td>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="30"
+										height="30"
+										fill="{{ i.port.color }}"
+										class="bi bi-displayport-fill"
+										viewBox="0 0 16 16"
+									>
+										<path d="M1 5a1 1 0 0 0-1 1v3.191a1 1 0 0 0 .553.894l1.618.81a1 1 0 0 0 .447.105H15a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm1.5 2h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8H3v.5a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5Z"></path>
+									</svg>
+								</td>
+								<td>
+									<strong>
+										Порт {{ forloop.counter }}:
+									</strong>
+									Скорость:
+									<strong>{{ i.port.speed }}</strong>,
+									Тип:
+									<strong>{{ i.port.material }}</strong>
+									<small>
+										<button class="btn btn-link btn-xs" onclick="showElement('form-port-update-{{ i.port.pk }}')">Применить</button>
+									</small>
+								</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td></td>
+								{% if i.port.note %}
+									<td>{{ i.port.note }}</td>
+								{% endif %}
+							</tr>
+							<tr>
+								<td></td>
+								<td></td>
+								{% if i.port.connection %}
+									<td>Подключен к: {{ i.port.connection }}</td>
+								{% endif %}
+
+							</tr>
+							<tr>
+								<td></td>
+								<td></td>
+								<td class='hidden' id="form-port-update-{{ i.port.pk }}">
+									<form id="edit_port-{{ i.port.pk }}" method="post" action='{% url 'port_update' pk=i.port.pk %}'>
+										{% csrf_token %}
+										<table class="port-edit-form">{{ i.form.as_table }}</table>
+										<div class="button-form">
+											<button onclick="hiddenElement('form-port-update-{{ i.port.pk }}')" type="reset" class="btn btn-default">Отменить</button>
+											<button form="edit_port-{{ i.port.pk }}" type="submit" class="btn btn-primary">Применить</button>
+										</div>
+									</form>
+								</td>
+							</tr>
+						</table>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<style>
+	.server-description {
+		border-collapse: separate;
+		border-spacing: 10px 2px;
+	}
+
+	.server-description td:first-child {
+		font-size: medium;
+		font-weight: bold;
+	}
+
+	.ports-list {
+		border-collapse: separate;
+		border-spacing: 5px;
+	}
+
+	#create-port {
+		margin: 10px;
+	}
+
+	.create-ports {
+		margin: 10px;
+		padding: 10px;
+		border-collapse: separate;
+		border-spacing: 10px 2px;
+		background: rgba(224, 243, 255, 0.35);
+		border-radius: 10px;
+	}
+
+	.button-form {
+		margin: 5px;
+	}
+
+	.port-description {
+		border-collapse: separate;
+		border-spacing: 10px 2px;
+	}
+
+	.port-edit-form {
+		margin: 10px;
+		padding: 10px;
+		border-collapse: separate;
+		border-spacing: 10px 2px;
+		background: rgba(255, 224, 244, 0.35);
+		border-radius: 10px;
+	}
+	</style>
+{% endblock %}

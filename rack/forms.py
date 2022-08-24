@@ -1,34 +1,59 @@
+from .models import Rack, Server, Port
+from .services.server import ServerLengthParser, ServerLengthParseError
+
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Rack, Server
-from .utils import parser_length
+
+class RackUpdateForm(forms.ModelForm):
+
+	class Meta:
+		model = Rack
+		fields = ['title']
 
 
 class RackCreateForm(forms.ModelForm):
+	size = forms.IntegerField(label='Размер', min_value=1, initial=1)
+
 	class Meta:
 		model = Rack
 		fields = ['title', 'size']
 
 
-class ServerCreateForm(forms.Form):
-	title = forms.CharField(label='Метка')
+class ServerUpdateForm(forms.ModelForm):
+
+	class Meta:
+		model = Server
+		fields = ['title', 'color', 'note', 'base_speed', 'base_material']
+		widgets = {
+			'color': forms.TextInput(attrs={'type': 'color'}),
+			'note':  forms.Textarea(attrs={'rows': 5})
+		}
+
+
+class ServerCreateForm(forms.ModelForm):
 	length = forms.CharField(label='Размер')
-	s = forms.ChoiceField(choices=(('u', 'u'), ('1/3u', '1/3u')), label='Мера')
-	note = forms.CharField(label='Заметки', widget=forms.Textarea, required=False)
-	color = forms.CharField(widget=forms.TextInput(attrs={'type': 'color'}), initial='#c9c9c9')
+	unit = forms.ChoiceField(label='Мера', choices=(('u', 'u'), ('1/3u', '1/3u')))
+	count_ports = forms.IntegerField(label='Портов', min_value=1, initial=1)
+	color = forms.CharField(label='Цвет', widget=forms.TextInput(attrs={'type': 'color'}), initial='#c9c9c9')
+
+	class Meta:
+		model = Server
+		fields = ['title', 'length', 'unit', 'color', 'note', 'count_ports', 'base_speed', 'base_material']
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self._length = None
 
 	def clean(self):
-		data = self.cleaned_data
+		super().clean()
+		parser = ServerLengthParser(self.cleaned_data.get('length'))
 		try:
-			data['length'] = int(data['length']) if data['s'] == '1/3u' else int(
-				data['length']) * 3
-		except ValueError:
-			data['length'] = parser_length(data['length'])
-			if not data['length']:
-				raise ValidationError('Сервер не добавлен: Не удалось расшифровать размер сервера')
-		data.pop('s')
-		return data
+			self._length = parser.parse_string(self.cleaned_data.get('unit'))
+			self.cleaned_data['length'] = self._length
+		except ServerLengthParseError:
+			raise ValidationError('Не удалось расшифровать размер сервера')
+		return self.cleaned_data
 
 
 class ServerNoteForm(forms.ModelForm):
@@ -36,4 +61,29 @@ class ServerNoteForm(forms.ModelForm):
 	class Meta:
 		model = Server
 		fields = ['note']
-		widgets = {'note': forms.Textarea}
+		widgets = {'note': forms.Textarea(attrs={'rows': 5})}
+
+
+class PortForm(forms.ModelForm):
+
+	class Meta:
+		model = Port
+		fields = ['color', 'speed', 'material', 'note', 'connection']
+		widgets = {
+			'color': forms.TextInput(attrs={'type': 'color', }),
+			'note': forms.Textarea(attrs={'rows': 3, }),
+			'connection': forms.Textarea(attrs={'rows': 3, }),
+		}
+
+
+class PortUpdateForm(PortForm):
+
+	class Meta(PortForm.Meta):
+		pass
+
+
+class PortCreateForm(PortForm):
+	count = forms.IntegerField(label='Количество портов', min_value=1, initial=1)
+
+	class Meta(PortForm.Meta):
+		fields = ['color', 'speed', 'material', 'note', 'connection', 'count']

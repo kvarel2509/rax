@@ -8,163 +8,294 @@
 {% block content %}
 	<div class="container">
 		<div class="row">
-			{% if messages %}
-				{% for message in messages %}
-					{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-						<div class="alert alert-danger" role="alert">{{ message }}</div>
-					{% else %}
-						<div class="alert alert-info" role="alert">{{ message }}</div>
-					{% endif %}
-				{% endfor %}
-			{% endif %}
-		</div>
-		<div class="row">
-			<div class="col-lg-8">
-				<table style="width: 100%">
-					{% for i in object.size|get_range %}
-						{% get_item rack i as row %}
-						{% get_item numbering i as number_elem %}
-						<tr style="height: 10px">
+			<div class="col-lg-9">
+				<div class="rack">
+					<table>
+						{% for i in object.size|get_range %}
+							{% get_item rack i as row %}
+							{% get_item numbering i as number_elem %}
+							<tr>
+								{% if number_elem.length %}
+									<td class="numerator-row" rowspan="{{ number_elem.length }}">
+										{{ number_elem.value }}
+									</td>
+								{% endif %}
 
-							{% if number_elem.length %}
-								<td style="width: 5%" rowspan="{{ number_elem.length }}">{{ number_elem.value }}</td>
-							{% endif %}
+								{% if row %}
+									{% if row.server %}
+										<td style="background: {{ row.server.color }}" rowspan="{{ row.length }}">
+											<div class="container-fluid">
+												<div class="row">
+													<div class="col-lg-2">
+														<button
+															type="button"
+															class="btn btn-warning btn-xs text-left rack-row-move"
+															data-toggle="modal"
+															data-target="#myModal2-{{ row.server.id }}"
+														>
+															Заметки
+														</button>
 
-							{% if row %}
-								{% if row.server %}
-									<td style="background: {{ row.server.color }}" rowspan="{{ row.length }}">
-
-										<div class="col-lg-1 text-left">
-											<button type="button" class="btn btn-warning btn-xs text-left bor"
-													data-toggle="modal"
-													data-target="#myModal2-{{ row.server.id }}">
-												Заметки
-											</button>
-
-											<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1"
-												 role="dialog">
-												<div class="modal-dialog" role="document">
-													<div class="modal-content">
-														<div class="modal-header">
-															<button type="button" class="close" data-dismiss="modal"
-																	aria-label="Close"><span
-																	aria-hidden="true">&times;</span></button>
-															<h4 class="modal-title" id="myModalLabel">Заметки</h4>
+														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1"
+															 role="dialog">
+															<div class="modal-dialog" role="document">
+																<div class="modal-content">
+																	<div class="modal-header">
+																		<button
+																			type="button"
+																			class="close"
+																			data-dismiss="modal"
+																			aria-label="Close"
+																		>
+																			<span aria-hidden="true">&times;</span>
+																		</button>
+																		<h4 class="modal-title" id="myModalLabel">Заметки</h4>
+																	</div>
+																	<div class="modal-body">
+																		<form
+																			method="post"
+																			action="{% url 'server_note_create' row.server.id %}"
+																		>
+																			{% csrf_token %}
+																			{{ row.note_form.as_p }}
+																			<button
+																				type="reset"
+																				class="btn btn-default"
+																				data-dismiss="modal"
+																			>
+																				Отменить
+																			</button>
+																			<button type="submit" class="btn btn-primary">
+																				Сохранить
+																			</button>
+																		</form>
+																	</div>
+																</div>
+															</div>
 														</div>
-														<div class="modal-body">
-															<form
-																method="post"
-																action="{% url 'server_note_create' row.server.id %}"
+													</div>
+
+													<div class="col-lg-5 server-info text-center">
+														<div>
+															<strong>
+																<a class="server-info__name" href={% url 'server_detail' pk=row.server.pk %}>
+																	{{ row.server.title }}
+																</a>
+															</strong>
+														</div>
+														{% if row.server.note %}
+															<div class="server-info__note-block">
+																<small class="server-info__note-block__text">
+																	{{ row.server.note }}
+																</small>
+															</div>
+														{% endif %}
+													</div>
+
+													<div class="col-lg-5">
+														<form id="server_delete-{{ row.server.id }}" method="post" action="{% url 'server_delete' pk=row.server.id %}">
+															{% csrf_token %}
+														</form>
+														<form id="server-move-{{ row.server.id }}" method="post" action="{% url 'server_move' pk=row.server.id %}">
+															{% csrf_token %}
+														</form>
+														<div>
+															<button
+																type="submit"
+																class="btn btn-success btn-xs rack-row-move"
+																form="server-move-{{ row.server.id }}"
+																name="move_type"
+																value="up1"
 															>
-																{% csrf_token %}
-																{{ row.note_form.as_p }}
-																<button type="reset" class="btn btn-default"
-																		data-dismiss="modal">Отменить
-																</button>
-																<button type="submit" class="btn btn-primary">
-																	Сохранить
-																</button>
-															</form>
+																^ 1
+															</button>
+															<button
+																type="submit"
+																class="btn btn-success btn-xs rack-row-move"
+																form="server-move-{{ row.server.id }}"
+																name="move_type"
+																value="up3"
+															>
+																^ 3
+															</button>
+															<button
+																type="submit"
+																class="btn btn-danger btn-xs rack-row-move"
+																form="server-move-{{ row.server.id }}"
+																name="move_type"
+																value="down1"
+															>
+																v 1
+															</button>
+															<button
+																type="submit"
+																class="btn btn-danger btn-xs rack-row-move"
+																form="server-move-{{ row.server.id }}"
+																name="move_type"
+																value="down3"
+															>
+																v 3
+															</button>
+															<button
+																type="submit"
+																class="btn btn-success btn-xs rack-row-move"
+																form="server-move-{{ row.server.id }}"
+																name="move_type"
+																value="up_max"
+															>
+																^ max
+															</button>
+															<button
+																type="submit"
+																class="btn btn-danger btn-xs rack-row-move"
+																form="server-move-{{ row.server.id }}"
+																name="move_type"
+																value="down_max"
+															>
+																v max
+															</button>
+															<button
+																type="submit"
+																class="btn btn-danger btn-xs rack-row-move"
+																form="server_delete-{{ row.server.id }}"
+															>
+																x
+															</button>
 														</div>
 													</div>
 												</div>
 											</div>
-										</div>
-
-										<div class="col-lg-6 text-center">
-											<strong style="padding-left: 10px; padding-right: 10px; background-color:#c9c9c9; border-radius: 6px;">{{ row.server.title }}</strong>
-										</div>
-
-										<div class="col-lg-5 text-right">
-											<a
-												class="btn btn-success btn-xs bor"
-												href="{% url 'server_move' row.server.id 'up1' %}"
-											>
-												^ 1
-											</a>
-											<a
-												class="btn btn-success btn-xs bor"
-												href="{% url 'server_move' row.server.id 'up3' %}"
-											>
-												^ 3
-											</a>
-											<a
-												class="btn btn-danger btn-xs bor"
-												href="{% url 'server_move' row.server.id 'down1' %}"
-											>
-												v 1
-											</a>
-											<a
-												class="btn btn-danger btn-xs bor"
-												href="{% url 'server_move' row.server.id 'down3' %}"
-											>
-												v 3
-											</a>
-											<a
-												class="btn btn-success btn-xs bor"
-												href="{% url 'server_move' row.server.id 'up_max' %}"
-											>
-												^max
-											</a>
-											<a
-												class="btn btn-danger btn-xs bor"
-												href="{% url 'server_move' row.server.id 'down_max' %}"
-											>
-												v max
-											</a>
-											<a
-												class="btn btn-danger btn-xs bor"
-												href="{% url 'server_delete' row.server.id %}"
-											>
-												x
-											</a>
-
-										</div>
-									</td>
-								{% else %}
-									<td rowspan="{{ row.length }}">
+										</td>
+									{% else %}
+										<td rowspan="{{ row.length }}"></td>
+									{% endif %}
 								{% endif %}
-							{% endif %}
-						</tr>
-					{% endfor %}
-				</table>
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
 			</div>
-			<div class="col-lg-4">
-				<button type="button" class="btn btn-primary btn-lg" onclick="get_server_form()">
-					Добавить оборудование
-				</button>
-				<div id="form_server"></div>
+			<div class="col-lg-3">
+				<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
+
+				<div class="text-center">
+					<div class="vertical-button">
+						<button
+							style="width: 100%"
+							form="rack-delete"
+							type="submit"
+							class="btn btn-danger"
+							title="Удалить стойку"
+						>
+							Удалить стойку
+						</button>
+					</div>
+					<div class="vertical-button">
+						<button
+							style="width: 100%"
+							class="btn btn-warning"
+							title="Изменить параметры стойки"
+							onclick="showElement('rack-update')"
+						>
+							Изменить стойку
+						</button>
+					</div>
+
+					<div class="vertical-button">
+						<button
+							style="width: 100%"
+							class="btn btn-primary"
+							title="Изменить параметры стойки"
+							onclick="showElement('form-server')"
+						>
+							Добавить оборудование
+						</button>
+					</div>
+				</div>
+				<div id="rack-update" class="hidden">
+					<form method="post" action="{% url 'rack_update' pk=object.pk %}">
+						{% csrf_token %}
+						<table class='add-server__table'>
+							{{ rack_update_form.as_table }}
+						</table>
+						<button type="reset" class="btn btn-default" onclick="hiddenElement('rack-update')">Отменить</button>
+						<button type="submit" class="btn btn-primary">Применить</button>
+					</form>
+				</div>
+				<div id="form-server" class="hidden">
+					<form method="post" action="{% url 'server_create' pk=object.pk %}">
+						{% csrf_token %}
+						<table class='add-server__table'>
+							{{ server_creation_form.as_table }}
+						</table>
+						<button type="reset" class="btn btn-default" onclick="hiddenElement('form-server')">Отменить</button>
+						<button type="submit" class="btn btn-primary">Добавить</button>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>
 
 	<style>
-		table, th, td {
-			border: 1px solid black;
+		div.rack tr, div.rack td {
+			border: 1px solid #888888;
 			text-align: center;
+			height: 10px;
 		}
-		.bor {
+
+		div.rack table {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+
+		.server-info__name {
+			padding-left: 10px;
+			padding-right: 10px;
+			background-color: rgba(110, 110, 110, 0.54);
+			border-radius: 4px;
+			font-size: 15px;
+			color: #ffffff;
+		}
+
+		.server-info__name:hover {
+			color: #cccccc;
+		}
+
+		.server-info__note-block {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.server-info__note-block__text {
+			padding: 2px 10px 2px 10px;
+			background-color: rgba(199, 199, 199, 0.56);
+			border-radius: 5px;
+			font-size: 10px;
+		}
+
+		.numerator-row {
+			width: 5%;
+			font-size: 15px;
+			font-style: oblique;
+		}
+
+		.add-server__table {
+			border-collapse: separate;
+			border-spacing: 10px 5px;
+			margin: 10px 1px 10px 1px;
+			background: rgba(213, 213, 213, 0.51);
+			border-radius: 10px;
+			padding: 10px;
+		}
+
+		.rack-row-move {
 			border-color: #0f0f0f;
 		}
+
+		.vertical-button {
+			width: 80%;
+			margin: 10px;
+		}
 	</style>
-
-	<script>
-	function get_server_form() {
-		let x = document.getElementById('form_server')
-		x.innerHTML = `<form method="post" action="{% url 'server_create' object.pk %}">
-						{% csrf_token %}
-						<table style=''>
-							{{ server_creation_form.as_table }}
-						</table>
-						<button type="reset" class="btn btn-default" onclick="hidden_server_form()">Отменить</button>
-						<button type="submit" data-turbo-action="replace" class="btn btn-primary">Добавить</button>
-					</form>`
-	}
-	function hidden_server_form() {
-		let x = document.getElementById('form_server')
-		x.innerHTML = ''
-	}
-
-	</script>
-
 {% endblock %}

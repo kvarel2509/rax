@@ -2,42 +2,79 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>{% block title %}
+	<head>
+		<meta charset="UTF-8">
+		<title>{% block title %}
 
-	{% endblock %}</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script type="module" src="https://cdn.jsdelivr.net/gh/m1kc/turbo-shy/turbo-shy-7.1.0.js"></script>
-	<meta name="turbo-visit-control" content="allow">
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-	<!-- jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
-<body>
-<nav class="navbar navbar-default">
-	<div class="container-fluid">
-		<!-- Brand and toggle get grouped for better mobile display -->
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-					data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-				<span class="sr-only">Toggle navigation</span>
-			</button>
-			<a class="navbar-brand" href="{% url 'rack_list' %}">Система имитации серверных стоек</a>
-			<a href="{% url 'rack_create' %}">
-				<button type="button" class="btn btn-success navbar-btn">Создать стойку</button>
-			</a>
+		{% endblock %}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script type="module" src="https://cdn.jsdelivr.net/gh/m1kc/turbo-shy/turbo-shy-7.1.0.js"></script>
+		<meta name="turbo-visit-control" content="allow">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<script>
+			function showElement(id) {
+				let element = document.getElementById(id)
+				element.setAttribute('class', 'show')
+			}
+
+			function hiddenElement(id) {
+				let element = document.getElementById(id)
+				element.setAttribute('class', 'hidden')
+			}
+
+			function selectAllPorts() {
+				let element = document.getElementsByClassName('port-checkbox')
+
+				for (let i of element) {
+					i.setAttribute('checked', null)
+				}
+			}
+		</script>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+							data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+					</button>
+					<a class="navbar-brand" href="{% url 'rack_list' %}">Система имитации серверных стоек</a>
+					<a href="{% url 'rack_create' %}">
+						<button type="button" class="btn btn-success navbar-btn">Создать стойку</button>
+					</a>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			<div class="row">
+					{% if messages %}
+						{% for message in messages %}
+							{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+								<div class="alert alert-danger" role="alert">
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									{{ message }}
+								</div>
+							{% else %}
+								<div class="alert alert-info" role="alert">
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									{{ message }}
+								</div>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				</div>
+
+			{% block content %}
+
+			{% endblock %}
 		</div>
-	</div>
-</nav>
-
-<div class="container">
-	{% block content %}
-
-	{% endblock %}
-</div>
-</body>
+	</body>
 </html>

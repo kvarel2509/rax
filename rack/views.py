@@ -1,12 +1,20 @@
-from django.shortcuts import redirect, get_object_or_404
+from .forms import (
+	ServerNoteForm,
+	ServerCreateForm,
+	RackCreateForm,
+	PortUpdateForm,
+	PortCreateForm,
+	ServerUpdateForm,
+	RackUpdateForm,
+)
+from .models import Rack, Server, Port
+from .services.rack import RackHelper
+from .services.server import ServerHelper
+
 from django.urls import reverse_lazy
 from django.views import generic
-
-from .forms import ServerNoteForm, ServerCreateForm, RackCreateForm
-from .models import Rack, Server
-from .services.rack import RackHelper
-from .utils import get_parsing_list, get_new_space_after_move, get_space_after_delete
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 
 
 class RackCreateView(generic.CreateView):
@@ -14,12 +22,16 @@ class RackCreateView(generic.CreateView):
 	template_name = 'rack/rack_create.html'
 	form_class = RackCreateForm
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.object = None
+
 	def form_valid(self, form):
 		self.object = form.save(commit=False)
-		self.object.space = [self.object.size * 3]
 		self.object.size *= 3
+		self.object.space = [self.object.size]
 		self.object.save()
-		return super().form_valid(form)
+		return HttpResponseRedirect(self.get_success_url())
 
 
 class RackListView(generic.ListView):
@@ -45,41 +57,111 @@ class RackDetailView(generic.DetailView):
 			])
 
 		context['server_creation_form'] = ServerCreateForm()
+		context['rack_update_form'] = RackUpdateForm(instance=self.object)
 		return context
 
 
+class RackUpdateView(generic.UpdateView):
+	model = Rack
+	form_class = RackUpdateForm
+
+	def get_success_url(self):
+		return reverse_lazy('rack_detail', kwargs={'pk': self.object.pk})
+
+
+class RackDeleteView(generic.DeleteView):
+	model = Rack
+	success_url = reverse_lazy('rack_list')
+
+
+class ServerDetailView(generic.DetailView):
+	model = Server
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['ports'] = [{'port': port, 'form': PortUpdateForm(instance=port)} for port in self.object.port_set.all()]
+		context['numerator_ports'] = range(1, len(context['ports']) + 1)
+		context['create_port_form'] = PortCreateForm(
+			initial={'speed': self.object.base_speed, 'material': self.object.base_material}
+		)
+		return context
+
+
+class ServerUpdateView(generic.UpdateView):
+	model = Server
+	form_class = ServerUpdateForm
+
+
+class PortUpdateView(generic.UpdateView):
+	model = Port
+	form_class = PortUpdateForm
+
+	def get_success_url(self):
+		return reverse_lazy('server_detail', kwargs={'pk': self.object.server_id})
+
+
+class PortCreateView(generic.CreateView):
+	model = Port
+	form_class = PortCreateForm
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.server = None
+
+	def form_valid(self, form):
+		self.server = Server.objects.get(pk=self.kwargs.get('pk'))
+		port = form.save(commit=False)
+		port.server = self.server
+		Port.objects.bulk_create([port for _ in range(form.cleaned_data['count'])])
+		return HttpResponseRedirect(self.get_url())
+
+	def get_url(self):
+		return reverse_lazy('server_detail', kwargs={'pk': self.server.pk})
+
+
+class PortDeleteView(generic.View):
+	def post(self, *args, **kwargs):
+		server = ServerHelper(Server.objects.get(pk=kwargs.get('pk')))
+		server.delete_ports(self.request.POST.getlist('del-port'))
+		return HttpResponseRedirect(self.get_url())
+
+	def get_url(self):
+		return reverse_lazy('server_detail', kwargs={'pk': self.kwargs.get('pk')})
+
+
 class ServerCreateView(generic.FormView):
-	"""для создания сервера"""
+	"""Для создания сервера"""
 	template_name = 'rack/server_create.html'
 	model = Server
 	form_class = ServerCreateForm
 
-	def get_space_server(self, form):
-		new_space = []
-		for index, value in enumerate(self.obj.space):
-			if isinstance(value, int) and value >= form.cleaned_data['length']:
-				server = Server.objects.create(**form.cleaned_data)
-				new_space.extend(
-					[{'id': server.pk, 'length': server.length}, value - server.length, *self.obj.space[index + 1:]])
-				return get_parsing_list(new_space)
-			new_space.append(value)
-		return False
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.rask_pk = None
+
+	def post(self, *args, **kwargs):
+		self.rask_pk = self.kwargs.get('pk')
+		return super().post(*args, **kwargs)
 
 	def form_valid(self, form):
-		self.obj = get_object_or_404(Rack, pk=self.kwargs['pk'])
-		form.cleaned_data['rack'] = self.obj
-		new_space = self.get_space_server(form)
-		if new_space:
-			self.obj.space = new_space
-			self.obj.save()
-		return super().form_valid(form)
+		rack = RackHelper(Rack.objects.get(pk=self.rask_pk))
+
+		if rack.check_free_space(form.cleaned_data.get('length')):
+			form.cleaned_data['rack'] = rack.rack
+			server = ServerHelper().create_server(form.cleaned_data)
+			server = ServerHelper(server)
+			rack.put_server_in_space(server)
+		else:
+			messages.error(self.request, 'Сервер не добавлен. Нет свободного места')
+
+		return HttpResponseRedirect(self.get_url())
 
 	def form_invalid(self, form):
 		messages.error(self.request, form.non_field_errors())
-		return super().form_valid(form)
+		return HttpResponseRedirect(self.get_url())
 
-	def get_success_url(self):
-		return reverse_lazy('rack_detail', kwargs={'pk': self.kwargs['pk']})
+	def get_url(self):
+		return reverse_lazy('rack_detail', kwargs={'pk': self.rask_pk})
 
 
 class ServerNoteCreateView(generic.UpdateView):
@@ -95,23 +177,34 @@ class ServerNoteCreateView(generic.UpdateView):
 class MoveServerView(generic.View):
 	"""Для перемещения сервера по полке"""
 
-	def get(self, request, pk, move_type, *args, **kwargs):
-		server = get_object_or_404(Server, pk=pk)
-		space = server.rack.space
-		new_space = get_new_space_after_move(server, space, move_type)
-		if new_space:
-			new_space = get_parsing_list(new_space)
-			server.rack.space = new_space
-			server.rack.save()
-		return redirect(reverse_lazy('rack_detail', kwargs={'pk': server.rack_id}))
+	def post(self, request, *args, **kwargs):
+		server_pk = self.kwargs.get('pk')
+		server = ServerHelper(Server.objects.get(pk=server_pk))
+		rack = RackHelper(server.server.rack)
+		rack.move_server_in_space(server, self.request.POST.get('move_type'))
+		print(rack.rack.space)
+		return HttpResponseRedirect(self.get_url(rack.rack.pk))
+
+	@staticmethod
+	def get_url(rack_pk):
+		return reverse_lazy('rack_detail', kwargs={'pk': rack_pk})
 
 
-class ServerDeleteView(generic.View):
+class ServerDeleteView(generic.DeleteView):
+	model = Server
 
-	def get(self, request, pk, *args, **kwargs):
-		server = get_object_or_404(Server, pk=pk)
-		server.rack.space = get_parsing_list(get_space_after_delete(server))
-		server.rack.save()
-		pk_for_redirect = server.rack.pk
-		server.delete()
-		return redirect(reverse_lazy('rack_detail', kwargs={'pk': pk_for_redirect}))
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.object = None
+
+	def delete(self, request, *args, **kwargs):
+		self.object = self.get_object()
+		server = ServerHelper(self.object)
+		rack = RackHelper(self.object.rack)
+		rack.delete_server_from_space(server)
+		self.object.delete()
+		return HttpResponseRedirect(self.get_url(rack))
+
+	@staticmethod
+	def get_url(rack):
+		return reverse_lazy('rack_detail', kwargs={'pk': rack.rack.pk})

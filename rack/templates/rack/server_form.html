@@ -1,0 +1,28 @@
+{% extends 'rack/base.html' %}
+
+{% block title %}
+	"{{ object.title }}"
+{% endblock %}
+
+{% block content %}
+	<form method="post" action="{% url 'server_update' pk=object.pk %}">
+		{% csrf_token %}
+		<table>
+			{{ form.as_table }}
+		</table>
+		<a type="button" class="btn btn-default" href="{% url 'server_detail' pk=object.pk %}">Вернуться</a>
+		<button type="reset" class="btn btn-warning">Сброс</button>
+		<button type="submit" class="btn btn-primary">Применить</button>
+	</form>
+
+	<style>
+	table {
+		margin: 10px;
+		padding: 10px;
+		border-collapse: separate;
+		border-spacing: 10px 2px;
+		background: rgba(224, 243, 255, 0.35);
+		border-radius: 10px;
+	}
+	</style>
+{% endblock %}
