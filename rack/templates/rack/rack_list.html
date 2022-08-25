@@ -1,13 +1,19 @@
 {% extends 'rack/base.html' %}
 
+{% load static %}
+
 {% block title %}
 	rax
 {% endblock %}
 
 {% block content %}
+	<div class="text"><img style="height: 7em" src="{% static 'rack/logo.png' %}" alt="logo"></div>
+	<p>&nbsp;</p>
 	<div class="list-group">
 		{% for i in object_list %}
 			<a href="{{ i.get_absolute_url }}" class="list-group-item">{{ i.title }}</a>
+		{% empty %}
+			Стоек пока нет.
 		{% endfor %}
 	</div>
 {% endblock %}
