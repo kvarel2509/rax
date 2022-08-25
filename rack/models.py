@@ -27,7 +27,7 @@ class Port(models.Model):
 	speed = models.CharField('Скорость порта', choices=SPEED_CHOICES, max_length=20)
 	material = models.CharField('Тип порта', choices=MATERIAL_CHOICES, max_length=20)
 	server = models.ForeignKey('Server', on_delete=models.CASCADE)
-	connection = models.TextField('Объект на том конце', blank=True, null=True)
+	connection = models.TextField('Подключён к', blank=True, null=True)
 
 	class Meta:
 		verbose_name = 'Порт'
@@ -38,13 +38,13 @@ class Port(models.Model):
 
 
 class Server(models.Model):
-	title = models.CharField('Метка сервера', max_length=50)
+	title = models.CharField('Название', max_length=50)
 	length = models.PositiveIntegerField('Размер')
 	note = models.TextField('Заметки', blank=True, null=True)
 	rack = models.ForeignKey(Rack, on_delete=models.SET_NULL, null=True)
 	color = models.CharField('Цвет', max_length=50)
-	base_speed = models.CharField('Скорость порта', choices=Port.SPEED_CHOICES, max_length=20)
-	base_material = models.CharField('Тип порта', choices=Port.MATERIAL_CHOICES, max_length=20)
+	base_speed = models.CharField('Скорость порта по умолчанию', choices=Port.SPEED_CHOICES, max_length=20)
+	base_material = models.CharField('Тип порта по умолчанию', choices=Port.MATERIAL_CHOICES, max_length=20)
 
 	class Meta:
 		verbose_name = 'Сервер'
