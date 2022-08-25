@@ -81,7 +81,7 @@ class ServerDetailView(LoginRequiredMixin, generic.DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['ports'] = [{'port': port, 'form': PortUpdateForm(instance=port)} for port in self.object.port_set.all()]
+		context['ports'] = [{'port': port, 'form': PortUpdateForm(instance=port)} for port in self.object.port_set.all().order_by('pk')]
 		context['numerator_ports'] = range(1, len(context['ports']) + 1)
 		context['create_port_form'] = PortCreateForm(
 			initial={'speed': self.object.base_speed, 'material': self.object.base_material}
