@@ -15,10 +15,12 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+#from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class RackCreateView(generic.CreateView):
-	"""Для создания новой полки"""
+class RackCreateView(LoginRequiredMixin, generic.CreateView):
+	"""Для создания новой стойки"""
 	template_name = 'rack/rack_create.html'
 	form_class = RackCreateForm
 
@@ -34,13 +36,13 @@ class RackCreateView(generic.CreateView):
 		return HttpResponseRedirect(self.get_success_url())
 
 
-class RackListView(generic.ListView):
-	"""Представление для отображения списка полок"""
+class RackListView(LoginRequiredMixin, generic.ListView):
+	"""Представление для отображения списка стоек"""
 	model = Rack
 
 
-class RackDetailView(generic.DetailView):
-	"""Для показа полки"""
+class RackDetailView(LoginRequiredMixin, generic.DetailView):
+	"""Для показа стойки"""
 	model = Rack
 
 	def get_context_data(self, **kwargs):
@@ -61,7 +63,7 @@ class RackDetailView(generic.DetailView):
 		return context
 
 
-class RackUpdateView(generic.UpdateView):
+class RackUpdateView(LoginRequiredMixin, generic.UpdateView):
 	model = Rack
 	form_class = RackUpdateForm
 
@@ -69,12 +71,12 @@ class RackUpdateView(generic.UpdateView):
 		return reverse_lazy('rack_detail', kwargs={'pk': self.object.pk})
 
 
-class RackDeleteView(generic.DeleteView):
+class RackDeleteView(LoginRequiredMixin, generic.DeleteView):
 	model = Rack
 	success_url = reverse_lazy('rack_list')
 
 
-class ServerDetailView(generic.DetailView):
+class ServerDetailView(LoginRequiredMixin, generic.DetailView):
 	model = Server
 
 	def get_context_data(self, **kwargs):
@@ -87,12 +89,12 @@ class ServerDetailView(generic.DetailView):
 		return context
 
 
-class ServerUpdateView(generic.UpdateView):
+class ServerUpdateView(LoginRequiredMixin, generic.UpdateView):
 	model = Server
 	form_class = ServerUpdateForm
 
 
-class PortUpdateView(generic.UpdateView):
+class PortUpdateView(LoginRequiredMixin, generic.UpdateView):
 	model = Port
 	form_class = PortUpdateForm
 
@@ -100,7 +102,7 @@ class PortUpdateView(generic.UpdateView):
 		return reverse_lazy('server_detail', kwargs={'pk': self.object.server_id})
 
 
-class PortCreateView(generic.CreateView):
+class PortCreateView(LoginRequiredMixin, generic.CreateView):
 	model = Port
 	form_class = PortCreateForm
 
@@ -119,7 +121,7 @@ class PortCreateView(generic.CreateView):
 		return reverse_lazy('server_detail', kwargs={'pk': self.server.pk})
 
 
-class PortDeleteView(generic.View):
+class PortDeleteView(LoginRequiredMixin, generic.View):
 	def post(self, *args, **kwargs):
 		server = ServerHelper(Server.objects.get(pk=kwargs.get('pk')))
 		server.delete_ports(self.request.POST.getlist('del-port'))
@@ -129,7 +131,7 @@ class PortDeleteView(generic.View):
 		return reverse_lazy('server_detail', kwargs={'pk': self.kwargs.get('pk')})
 
 
-class ServerCreateView(generic.FormView):
+class ServerCreateView(LoginRequiredMixin, generic.FormView):
 	"""Для создания сервера"""
 	template_name = 'rack/server_create.html'
 	model = Server
@@ -164,7 +166,7 @@ class ServerCreateView(generic.FormView):
 		return reverse_lazy('rack_detail', kwargs={'pk': self.rask_pk})
 
 
-class ServerNoteCreateView(generic.UpdateView):
+class ServerNoteCreateView(LoginRequiredMixin, generic.UpdateView):
 	"""Для создания заметки на сервер"""
 	form_class = ServerNoteForm
 	template_name = 'rack/server_note_create.html'
@@ -174,8 +176,8 @@ class ServerNoteCreateView(generic.UpdateView):
 		return reverse_lazy('rack_detail', kwargs={'pk': self.object.rack_id})
 
 
-class MoveServerView(generic.View):
-	"""Для перемещения сервера по полке"""
+class MoveServerView(LoginRequiredMixin, generic.View):
+	"""Для перемещения сервера по стойке"""
 
 	def post(self, request, *args, **kwargs):
 		server_pk = self.kwargs.get('pk')
@@ -190,7 +192,7 @@ class MoveServerView(generic.View):
 		return reverse_lazy('rack_detail', kwargs={'pk': rack_pk})
 
 
-class ServerDeleteView(generic.DeleteView):
+class ServerDeleteView(LoginRequiredMixin, generic.DeleteView):
 	model = Server
 
 	def __init__(self, *args, **kwargs):
