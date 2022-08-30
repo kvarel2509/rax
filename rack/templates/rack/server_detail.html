@@ -78,7 +78,7 @@
 										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
 									{% endif %}
 								</div>
-								<div class="text-center {% if i.port.connection %}strong{% else %}text-muted{% endif %}">
+								<div class="text-center {% if not i.port.connection %}muted{% endif %}">
 									<span>{{ forloop.counter }}</span>
 								</div>
 							</td>
@@ -262,9 +262,8 @@
 		border-radius: 10px;
 	}
 
-	.strong {
-		font-weight: bold;
-		font-size: large;
+	.muted {
+		color: #bbbbbb;
 	}
 
 	</style>
