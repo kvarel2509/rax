@@ -10,9 +10,9 @@
 		<table>
 			{{ form.as_table }}
 		</table>
+		<button type="submit" class="btn btn-primary">Сохранить</button>
 		<a type="button" class="btn btn-default" href="{% url 'server_detail' pk=object.pk %}">&larr; Назад</a>
 		<!-- <button type="reset" class="btn btn-warning">Сброс</button> -->
-		<button type="submit" class="btn btn-primary">Сохранить</button>
 	</form>
 
 	<style>

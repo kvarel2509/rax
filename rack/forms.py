@@ -9,7 +9,8 @@ class RackUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model = Rack
-		fields = ['title']
+		fields = ['title', 'note']
+		widgets = {'note': forms.Textarea(attrs={'cols': 25})}
 
 
 class RackCreateForm(forms.ModelForm):

@@ -11,7 +11,7 @@
 	<p>&nbsp;</p>
 	<div class="list-group">
 		{% for i in object_list %}
-			<a href="{{ i.get_absolute_url }}" class="list-group-item">{{ i.title }}</a>
+			<a href="{{ i.get_absolute_url }}" class="list-group-item"><strong>{{ i.title }}</strong><code style="margin-left: 15px">{{ i.note|truncatechars:30 }}</code></a>
 		{% empty %}
 			Стоек пока нет.
 		{% endfor %}
