@@ -2,7 +2,7 @@
 {% load tags %}
 
 {% block title %}
-	"{{ object.title }}"
+	{{ object.title }} (оборудование) &mdash; rax
 {% endblock %}
 
 {% block content %}
@@ -11,13 +11,13 @@
 			<div class="col-lg-12">
 				<form id="server_delete" method="post" action="{% url 'server_delete' pk=object.pk %}">{% csrf_token %}</form>
 				<a type="button" class="btn btn-default" href="{% url 'rack_detail' object.rack.pk %}">
-					Перейти к стойке
+					&larr; Перейти к стойке
 				</a>
-				<a type="button" class="btn btn-info" href="{% url 'server_update' pk=object.pk %}">
+				<a type="button" class="btn btn-default" href="{% url 'server_update' pk=object.pk %}">
 					Изменить параметры оборудования
 				</a>
-				<button form="server_delete" type="submit" class="btn btn-danger">
-					Удалить оборудование
+				<button form="server_delete" type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены?')">
+					&times; Удалить оборудование
 				</button>
 			</div>
 		</div>
@@ -32,24 +32,27 @@
 				<div>
 					<table class="server-description">
 						<tr>
+							<td>Размер (*1/3U):</td>
+							<td>{{ object.length }}</td>
+						</tr>
+						<tr>
+							<td>Портов:</td>
+							<td>{{ ports|length }}</td>
+						</tr>
+						<tr>
 							<td>Заметки:</td>
 							<td>{{ object.note }}</td>
 						</tr>
 						<tr>
-							<td>Размер:</td>
-							<td>{{ object.length }}</td>
+							<td>&nbsp;</td>
 						</tr>
 						<tr>
-							<td>Количество портов:</td>
-							<td>{{ ports|length }}</td>
-						</tr>
-						<tr>
-							<td>Основная скорость:</td>
-							<td>{{ object.base_speed }}</td>
-						</tr>
-						<tr>
-							<td>Основной тип порта:</td>
+							<td>Тип порта по умолчанию:</td>
 							<td>{{ object.base_material }}</td>
+						</tr>
+						<tr>
+							<td>Скорость порта по умолчанию:</td>
+							<td>{{ object.base_speed }}</td>
 						</tr>
 					</table>
 				</div>
@@ -68,16 +71,11 @@
 					<tr>
 						{% for i in ports %}
 							<td>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="25"
-									height="25"
-									fill="{{ i.port.color }}"
-									class="bi bi-displayport-fill"
-									viewBox="0 0 16 16"
-								>
-									<path d="M1 5a1 1 0 0 0-1 1v3.191a1 1 0 0 0 .553.894l1.618.81a1 1 0 0 0 .447.105H15a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm1.5 2h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8H3v.5a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5Z"></path>
-								</svg>
+								{% if i.port.material.lower == "оптика" %}
+									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-thunderbolt-fill"></i>
+								{% else %}
+									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
+								{% endif %}
 							</td>
 						{% endfor %}
 					</tr>
@@ -90,54 +88,6 @@
 					</tr>
 				</table>
 
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-lg-12">
-				<hr>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-lg-12">
-				<div class="button-group">
-					<button
-						type="button"
-						class="btn btn-primary"
-						onclick="showElement('create-port')"
-					>
-						Добавить порты
-					</button>
-					<button
-						type="submit"
-						class="btn btn-warning"
-						form="del-port"
-					>
-						Удалить выбранные порты
-					</button>
-					<button
-						type="submit"
-						class="btn btn-danger"
-						form="del-port"
-						onclick="selectAllPorts()"
-					>
-						Удалить все порты
-					</button>
-				</div>
-
-				<div id="create-port" class="hidden">
-					<form method="post" action='{% url 'port_create' pk=object.pk %}'>
-						{% csrf_token %}
-						<table class="create-ports">
-							{{ create_port_form.as_table }}
-						</table>
-						<div class="button-form">
-							<button onclick="hiddenElement('create-port')" type="reset" class="btn btn-default">Отменить</button>
-							<button type="submit" class="btn btn-primary">Создать</button>
-						</div>
-					</form>
-				</div>
 			</div>
 		</div>
 
@@ -162,16 +112,11 @@
 								</td>
 
 								<td>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="30"
-										height="30"
-										fill="{{ i.port.color }}"
-										class="bi bi-displayport-fill"
-										viewBox="0 0 16 16"
-									>
-										<path d="M1 5a1 1 0 0 0-1 1v3.191a1 1 0 0 0 .553.894l1.618.81a1 1 0 0 0 .447.105H15a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm1.5 2h11a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8H3v.5a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5Z"></path>
-									</svg>
+									{% if i.port.material.lower == "оптика" %}
+										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-thunderbolt-fill"></i>
+									{% else %}
+										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
+									{% endif %}
 								</td>
 								<td>
 									<strong>
@@ -182,7 +127,7 @@
 									Тип:
 									<strong>{{ i.port.material }}</strong>
 									<small>
-										<button class="btn btn-link btn-xs" onclick="showElement('form-port-update-{{ i.port.pk }}')">Применить</button>
+										<button class="btn btn-link btn-xs" onclick="showElement('form-port-update-{{ i.port.pk }}')">Изменить</button>
 									</small>
 								</td>
 							</tr>
@@ -218,6 +163,56 @@
 						</table>
 					</div>
 				{% endfor %}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<hr>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="button-group">
+					<button
+						type="button"
+						class="btn btn-success"
+						onclick="showElement('create-port')"
+					>
+						&plus; Добавить порты
+					</button>
+					<button
+						type="submit"
+						class="btn btn-warning"
+						form="del-port"
+						onclick="return confirm('Вы уверены?')"
+					>
+						&times; Удалить выбранные порты
+					</button>
+					<button
+						type="submit"
+						class="btn btn-danger"
+						form="del-port"
+						onclick="if (confirm('Вы уверены?')) selectAllPorts()"
+					>
+						&times; Удалить все порты
+					</button>
+					<p>&nbsp;</p>
+				</div>
+
+				<div id="create-port" class="hidden">
+					<form method="post" action='{% url 'port_create' pk=object.pk %}'>
+						{% csrf_token %}
+						<table class="create-ports">
+							{{ create_port_form.as_table }}
+						</table>
+						<div class="button-form">
+							<button onclick="hiddenElement('create-port')" type="reset" class="btn btn-default">Отменить</button>
+							<button type="submit" class="btn btn-primary">Создать</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>

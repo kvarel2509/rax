@@ -1,7 +1,7 @@
 {% extends 'rack/base.html' %}
 
 {% block title %}
-	"{{ object.title }}"
+	{{ object.title }} (оборудование) &mdash; rax
 {% endblock %}
 
 {% block content %}
@@ -10,9 +10,9 @@
 		<table>
 			{{ form.as_table }}
 		</table>
-		<a type="button" class="btn btn-default" href="{% url 'server_detail' pk=object.pk %}">Вернуться</a>
-		<button type="reset" class="btn btn-warning">Сброс</button>
-		<button type="submit" class="btn btn-primary">Применить</button>
+		<a type="button" class="btn btn-default" href="{% url 'server_detail' pk=object.pk %}">&larr; Назад</a>
+		<!-- <button type="reset" class="btn btn-warning">Сброс</button> -->
+		<button type="submit" class="btn btn-primary">Сохранить</button>
 	</form>
 
 	<style>
