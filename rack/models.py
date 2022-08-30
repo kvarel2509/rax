@@ -6,6 +6,7 @@ class Rack(models.Model):
 	title = models.CharField('Название стойки', max_length=50)
 	size = models.PositiveIntegerField('Размер', help_text='Размер измеряется в целых юнитах')
 	space = models.JSONField('Пространство для серверов')
+	note = models.TextField('Заметки', blank=True, null=True)
 
 	class Meta:
 		verbose_name = 'Стойка'

@@ -8,7 +8,7 @@
 {% block content %}
 	<div class="container">
 		<div class="row">
-			<div class="col-lg-9">
+			<div class="col-lg-8">
 				<div class="rack">
 					<table>
 						{% for i in object.size|get_range %}
@@ -36,8 +36,7 @@
 															заметки
 														</button>
 
-														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1"
-															 role="dialog">
+														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1" role="dialog">
 															<div class="modal-dialog" role="document">
 																<div class="modal-content">
 																	<div class="modal-header">
@@ -58,6 +57,9 @@
 																		>
 																			{% csrf_token %}
 																			{{ row.note_form.as_p }}
+																			<button type="submit" class="btn btn-primary">
+																				Сохранить
+																			</button>
 																			<button
 																				type="reset"
 																				class="btn btn-default"
@@ -65,9 +67,7 @@
 																			>
 																				Отменить
 																			</button>
-																			<button type="submit" class="btn btn-primary">
-																				Сохранить
-																			</button>
+
 																		</form>
 																	</div>
 																</div>
@@ -86,7 +86,7 @@
 														{% if row.server.note %}
 															<div class="server-info__note-block">
 																<small class="server-info__note-block__text">
-																	{{ row.server.note }}
+																	{{ row.server.note|truncatechars:30 }}
 																</small>
 															</div>
 														{% endif %}
@@ -175,7 +175,7 @@
 					</table>
 				</div>
 			</div>
-			<div class="col-lg-3">
+			<div class="col-lg-4">
 				<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
 
 				<div class="text-center">
@@ -213,14 +213,19 @@
 						</button>
 					</div>
 				</div>
+				<div>
+					{% if object.note %}
+						<pre>{{ object.note }}</pre>
+					{% endif %}
+				</div>
 				<div id="rack-update" class="hidden">
 					<form method="post" action="{% url 'rack_update' pk=object.pk %}">
 						{% csrf_token %}
 						<table class='add-server__table'>
 							{{ rack_update_form.as_table }}
 						</table>
-						<button type="reset" class="btn btn-default" onclick="hiddenElement('rack-update')">Отменить</button>
 						<button type="submit" class="btn btn-primary">Применить</button>
+						<button type="reset" class="btn btn-default" onclick="hideElement('rack-update')">Отменить</button>
 					</form>
 				</div>
 				<div id="form-server" class="hidden">
@@ -229,8 +234,8 @@
 						<table class='add-server__table'>
 							{{ server_creation_form.as_table }}
 						</table>
-						<button type="reset" class="btn btn-default" onclick="hiddenElement('form-server')">Отменить</button>
 						<button type="submit" class="btn btn-primary">Добавить</button>
+						<button type="reset" class="btn btn-default" onclick="hideElement('form-server')">Отменить</button>
 					</form>
 				</div>
 			</div>
@@ -264,7 +269,6 @@
 
 		.server-info__note-block {
 			white-space: nowrap;
-			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 

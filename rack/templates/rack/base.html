@@ -26,7 +26,7 @@
 				element.setAttribute('class', 'show')
 			}
 
-			function hiddenElement(id) {
+			function hideElement(id) {
 				let element = document.getElementById(id)
 				element.setAttribute('class', 'hidden')
 			}
@@ -56,22 +56,22 @@
 
 		<div class="container">
 			<div class="row">
-					{% if messages %}
-						{% for message in messages %}
-							{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-								<div class="alert alert-danger" role="alert">
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-									{{ message }}
-								</div>
-							{% else %}
-								<div class="alert alert-info" role="alert">
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-									{{ message }}
-								</div>
-							{% endif %}
-						{% endfor %}
-					{% endif %}
-				</div>
+				{% if messages %}
+					{% for message in messages %}
+						{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+							<div class="alert alert-danger" role="alert">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								{{ message }}
+							</div>
+						{% else %}
+							<div class="alert alert-info" role="alert">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								{{ message }}
+							</div>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+			</div>
 
 			{% block content %}
 

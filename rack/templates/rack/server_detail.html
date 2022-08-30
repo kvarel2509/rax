@@ -71,18 +71,16 @@
 					<tr>
 						{% for i in ports %}
 							<td>
-								{% if i.port.material.lower == "оптика" %}
-									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-thunderbolt-fill"></i>
-								{% else %}
-									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
-								{% endif %}
-							</td>
-						{% endfor %}
-					</tr>
-					<tr>
-						{% for i in numerator_ports %}
-							<td class="text-center">
-							{{ i }}
+								<div>
+									{% if i.port.material.lower == "оптика" %}
+										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-thunderbolt-fill"></i>
+									{% else %}
+										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
+									{% endif %}
+								</div>
+								<div class="text-center {% if i.port.connection %}strong{% else %}text-muted{% endif %}">
+									<span>{{ forloop.counter }}</span>
+								</div>
 							</td>
 						{% endfor %}
 					</tr>
@@ -154,8 +152,8 @@
 										{% csrf_token %}
 										<table class="port-edit-form">{{ i.form.as_table }}</table>
 										<div class="button-form">
-											<button onclick="hiddenElement('form-port-update-{{ i.port.pk }}')" type="reset" class="btn btn-default">Отменить</button>
 											<button form="edit_port-{{ i.port.pk }}" type="submit" class="btn btn-primary">Применить</button>
+											<button onclick="hideElement('form-port-update-{{ i.port.pk }}')" type="reset" class="btn btn-default">Отменить</button>
 										</div>
 									</form>
 								</td>
@@ -208,8 +206,8 @@
 							{{ create_port_form.as_table }}
 						</table>
 						<div class="button-form">
-							<button onclick="hiddenElement('create-port')" type="reset" class="btn btn-default">Отменить</button>
 							<button type="submit" class="btn btn-primary">Создать</button>
+							<button onclick="hideElement('create-port')" type="reset" class="btn btn-default">Отменить</button>
 						</div>
 					</form>
 				</div>
@@ -263,5 +261,11 @@
 		background: rgba(255, 224, 244, 0.35);
 		border-radius: 10px;
 	}
+
+	.strong {
+		font-weight: bold;
+		font-size: large;
+	}
+
 	</style>
 {% endblock %}

@@ -40,7 +40,7 @@ class ServerLengthParseError(Exception):
 
 class ServerLengthParser:
 	def __init__(self, string: str):
-		self._string = string.strip()
+		self._string = string.strip().lower()
 
 	def parse_string(self, unit: str):
 		separators = ('1/3u', '1/3 u', 'u')

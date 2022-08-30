@@ -9,7 +9,8 @@ class RackUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model = Rack
-		fields = ['title']
+		fields = ['title', 'note']
+		widgets = {'note': forms.Textarea(attrs={'cols': 25})}
 
 
 class RackCreateForm(forms.ModelForm):
@@ -34,12 +35,13 @@ class ServerUpdateForm(forms.ModelForm):
 class ServerCreateForm(forms.ModelForm):
 	length = forms.CharField(label='Размер')
 	unit = forms.ChoiceField(label='Мера', choices=(('u', 'u'), ('1/3u', '1/3u')))
-	count_ports = forms.IntegerField(label='Портов', min_value=1, initial=1)
+	count_ports = forms.IntegerField(label='Портов', min_value=0, initial=1)
 	color = forms.CharField(label='Цвет', widget=forms.TextInput(attrs={'type': 'color'}), initial='#c9c9c9')
 
 	class Meta:
 		model = Server
 		fields = ['title', 'length', 'unit', 'color', 'note', 'count_ports', 'base_speed', 'base_material']
+		widgets = {'note': forms.Textarea(attrs={'cols': 25})}
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
