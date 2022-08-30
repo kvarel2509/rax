@@ -8,7 +8,7 @@
 {% block content %}
 	<div class="container">
 		<div class="row">
-			<div class="col-lg-9">
+			<div class="col-lg-8">
 				<div class="rack">
 					<table>
 						{% for i in object.size|get_range %}
@@ -36,8 +36,7 @@
 															Заметки
 														</button>
 
-														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1"
-															 role="dialog">
+														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1" role="dialog">
 															<div class="modal-dialog" role="document">
 																<div class="modal-content">
 																	<div class="modal-header">
@@ -86,7 +85,7 @@
 														{% if row.server.note %}
 															<div class="server-info__note-block">
 																<small class="server-info__note-block__text">
-																	{{ row.server.note }}
+																	{{ row.server.note|truncatechars:30 }}
 																</small>
 															</div>
 														{% endif %}
@@ -175,7 +174,7 @@
 					</table>
 				</div>
 			</div>
-			<div class="col-lg-3">
+			<div class="col-lg-4">
 				<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
 
 				<div class="text-center">
@@ -223,6 +222,45 @@
 					</form>
 				</div>
 				<div id="form-server" class="hidden">
+
+{#					<div class="modal fade" id="create-server" tabindex="-1" role="dialog">#}
+{#						<div class="modal-dialog" role="document">#}
+{#							<div class="modal-content">#}
+{#								<div class="modal-header">#}
+{#									<button#}
+{#										type="button"#}
+{#										class="close"#}
+{#										data-dismiss="modal"#}
+{#										aria-label="Close"#}
+{#									>#}
+{#										<span aria-hidden="true">&times;</span>#}
+{#									</button>#}
+{#									<h4 class="modal-title" id="myModalLabel">Заметки</h4>#}
+{#								</div>#}
+{#								<div class="modal-body">#}
+{#									<form#}
+{#										method="post"#}
+{#										action="{% url 'server_note_create' row.server.id %}"#}
+{#									>#}
+{#										{% csrf_token %}#}
+{#										{{ row.note_form.as_p }}#}
+{#										<button#}
+{#											type="reset"#}
+{#											class="btn btn-default"#}
+{#											data-dismiss="modal"#}
+{#										>#}
+{#											Отменить#}
+{#										</button>#}
+{#										<button type="submit" class="btn btn-primary">#}
+{#											Сохранить#}
+{#										</button>#}
+{#									</form>#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+{#					</div>#}
+
+
 					<form method="post" action="{% url 'server_create' pk=object.pk %}">
 						{% csrf_token %}
 						<table class='add-server__table'>
@@ -246,6 +284,7 @@
 		div.rack table {
 			width: 100%;
 			margin-bottom: 10px;
+			overflow: auto;
 		}
 
 		.server-info__name {
@@ -263,7 +302,6 @@
 
 		.server-info__note-block {
 			white-space: nowrap;
-			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 
