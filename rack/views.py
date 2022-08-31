@@ -37,7 +37,7 @@ class RackCreateView(LoginRequiredMixin, generic.CreateView):
 
 class RackListView(LoginRequiredMixin, generic.ListView):
 	"""Представление для отображения списка стоек"""
-	model = Rack
+	queryset = Rack.objects.filter(backside__isnull=True)
 
 
 class RackDetailView(LoginRequiredMixin, generic.DetailView):
@@ -47,7 +47,14 @@ class RackDetailView(LoginRequiredMixin, generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		rack = RackHelper(self.object)
-		context['rack'] = rack.get_context_for_detail_view()
+		context['space_main'] = rack.get_space_for_detail_view()
+		rack_reverse_side = rack.get_reverse_side()
+		context['reverse_side'] = rack_reverse_side
+
+		if rack_reverse_side:
+			context['space_reverse'] = RackHelper(rack_reverse_side).get_space_for_detail_view()
+		else:
+			context['space_reverse'] = [RackHelper.get_space_empty_row()] * rack.rack.size
 		context['numbering'] = []
 
 		for i in range(self.object.size // 3, 0, -1):
@@ -72,7 +79,38 @@ class RackUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 class RackDeleteView(LoginRequiredMixin, generic.DeleteView):
 	model = Rack
-	success_url = reverse_lazy('rack_list')
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.object = None
+
+	def delete(self, request, *args, **kwargs):
+		self.object = self.get_object()
+		success_url = self.get_success_url()
+		if not self.object.backside:
+			self.object.reverse_side.first().delete()
+		self.object.delete()
+		return HttpResponseRedirect(success_url)
+
+	def get_success_url(self):
+		if not self.object.backside:
+			return reverse_lazy('rack_list')
+		else:
+			return reverse_lazy('rack_detail', kwargs={'pk': self.object.reverse_side.first().pk})
+
+
+class RackCreateBackSideView(LoginRequiredMixin, generic.View):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.rack_backside = None
+
+	def get(self, request, *args, **kwargs):
+		rack = RackHelper(Rack.objects.get(pk=self.kwargs.get('pk')))
+		self.rack_backside = rack.create_rack_backside()
+		return HttpResponseRedirect(self.get_url())
+
+	def get_url(self):
+		return reverse_lazy('rack_detail', kwargs={'pk': self.rack_backside.pk})
 
 
 class ServerDetailView(LoginRequiredMixin, generic.DetailView):
@@ -80,7 +118,9 @@ class ServerDetailView(LoginRequiredMixin, generic.DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['ports'] = [{'port': port, 'form': PortUpdateForm(instance=port)} for port in self.object.port_set.all().order_by('pk')]
+		context['ports'] = [
+			{'port': port, 'form': PortUpdateForm(instance=port)} for port in self.object.port_set.all().order_by('pk')
+		]
 		context['numerator_ports'] = range(1, len(context['ports']) + 1)
 		context['create_port_form'] = PortCreateForm(
 			initial={'speed': self.object.base_speed, 'material': self.object.base_material}
