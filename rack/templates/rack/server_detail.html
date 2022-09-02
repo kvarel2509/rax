@@ -77,7 +77,7 @@
 									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
 								{% endif %}
 							</div>
-							<div class="{% if not i.port.connection %}muted{% endif %}">
+							<div class="{% if not i.port.connection and not i.link %}muted{% endif %}">
 								<span>{{ i.port.number }}</span>
 							</div>
 						</div>
