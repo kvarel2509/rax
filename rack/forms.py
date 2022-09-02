@@ -1,4 +1,5 @@
 from .models import Rack, Server, Port
+from .services.port import PortConnectionParser, PortNotFoundError, PortHelper, PortIsNotFreeError
 from .services.server import ServerLengthParser, ServerLengthParseError
 
 from django import forms
@@ -83,9 +84,41 @@ class PortUpdateForm(PortForm):
 	class Meta(PortForm.Meta):
 		pass
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.communication_port = None
+		self.speed = None
+
+	def clean_connection(self):
+		connection = self.cleaned_data.get('connection')
+		parser = PortConnectionParser(connection)
+		parser_data = parser.parse()
+
+		if parser_data.script:
+			try:
+				communication_port = PortHelper.search_port(parser_data.script)
+				PortHelper.check_port_free(communication_port)
+				self.communication_port = communication_port
+				self.speed = parser_data.script.speed
+			except (PortNotFoundError, PortIsNotFreeError) as error:
+				raise ValidationError(error)
+
+		return parser_data.string
+
+	def save(self, commit=True):
+		if self.communication_port:
+			current_link = self.instance.link.first()
+
+			if current_link:
+				current_link.link.clear()
+
+			self.instance.link.set([self.communication_port], through_defaults={'speed': self.speed})
+			self.communication_port.link.set([self.instance], through_defaults={'speed': self.speed})
+		return super().save(commit)
+
 
 class PortCreateForm(PortForm):
 	count = forms.IntegerField(label='Количество портов', min_value=1, initial=1)
 
 	class Meta(PortForm.Meta):
-		fields = ['color', 'speed', 'material', 'note', 'connection', 'count']
+		fields = ['color', 'speed', 'material', 'note', 'count']
