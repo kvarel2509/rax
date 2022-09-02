@@ -7,6 +7,8 @@ class Rack(models.Model):
 	size = models.PositiveIntegerField('Размер', help_text='Размер измеряется в целых юнитах')
 	space = models.JSONField('Пространство для серверов')
 	note = models.TextField('Заметки', blank=True, null=True)
+	reverse_side = models.ManyToManyField('self', verbose_name='Обратная сторона стойки')
+	backside = models.BooleanField('Является задней стороной?', blank=True, null=True)
 
 	class Meta:
 		verbose_name = 'Стойка'

@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" type="image/png" href="{% static 'rack/logo-img.png' %}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Bootstrap 3.4.1 -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css">
+	<title>Вход в систему</title>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="logo text-center"><img style="height: 7em" src="{% static 'rack/logo.png' %}" alt="logo"></div>
+		<div class="text-center">
+			<form method="post" action="{% url 'login' %}">
+				{% csrf_token %}
+				<p>
+					{{ form.as_p }}
+				</p>
+				<input type="submit" value="login">
+				<input type="hidden" name="next" value="{{ next }}">
+			</form>
+		</div>
+	</div>
+</body>
+<style>
+	.logo {
+		margin-top: 10%;
+		margin-bottom: 5%;
+	}
+</style>
+</html>

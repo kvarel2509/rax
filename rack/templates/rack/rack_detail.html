@@ -12,7 +12,8 @@
 				<div class="rack">
 					<table>
 						{% for i in object.size|get_range %}
-							{% get_item rack i as row %}
+							{% get_item space_main i as row %}
+							{% get_item space_reverse i as row_reverse %}
 							{% get_item numbering i as number_elem %}
 							<tr>
 								{% if number_elem.length %}
@@ -168,7 +169,7 @@
 											</div>
 										</td>
 									{% else %}
-										<td rowspan="{{ row.length }}"></td>
+										<td {% if not row_reverse or row_reverse.server %}class="stripes"{% endif %} rowspan="{{ row.length }}"></td>
 									{% endif %}
 								{% endif %}
 							</tr>
@@ -180,6 +181,23 @@
 				<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
 
 				<div class="text-center">
+					<div class="vertical-button">
+						<div class="btn-group btn-group-justified">
+							<div class="btn-group">
+								<a type="button" class="btn btn-default" {% if not object.backside %}disabled="disabled"{% else %} href={% url 'rack_detail' pk=reverse_side.pk %}{% endif %}>Передняя сторона</a>
+							</div>
+							{% if not object.backside and not reverse_side %}
+								<div class="btn-group">
+									<a type="button" class="btn btn-link" href={% url 'rack_add_backside' pk=object.pk %}>Создать заднюю сторону</a>
+								</div>
+							{% else  %}
+								<div class="btn-group">
+									<a type="button" class="btn btn-default" {% if object.backside %}disabled="disabled"{% else %} href={% url 'rack_detail' pk=reverse_side.pk %}{% endif %}>Задняя сторона</a>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+
 					<div class="vertical-button">
 						<button
 							style="width: 100%"
@@ -208,7 +226,7 @@
 							type="submit"
 							class="btn btn-danger"
 							title="Удалить стойку"
-							onclick="return confirm('Вы уверены?')"
+							onclick="return confirm('{% if not object.backside %}Вы удаляете переднюю сторону. Задняя сторона так же будет удалена.{% endif %} Вы уверены?')"
 						>
 							&times; Удалить стойку
 						</button>
@@ -216,7 +234,7 @@
 				</div>
 				<div>
 					{% if object.note %}
-						<pre>{{ object.note }}</pre>
+						<div class="vertical-button"><pre>{{ object.note }}</pre></div>
 					{% endif %}
 				</div>
 				<div id="rack-update" class="hidden">
@@ -300,8 +318,12 @@
 		}
 
 		.vertical-button {
-			width: 80%;
+			width: 100%;
 			margin: 10px;
+		}
+
+		.stripes {
+			background: repeating-linear-gradient(45deg, #e0e0e0, #d9d9d9 10px, #cecece 10px, #c5c5c5 20px);
 		}
 	</style>
 {% endblock %}

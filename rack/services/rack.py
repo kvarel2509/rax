@@ -7,9 +7,9 @@ class RackHelper:
 	def __init__(self, rack: Rack):
 		self.rack = rack
 
-	def get_context_for_detail_view(self):
+	def get_space_for_detail_view(self):
 		rack = []
-		empty_row = {'server': None, 'note_form': None, 'length': 1}
+		empty_row = self.get_space_empty_row()
 		servers = self.rack.server_set.all()
 
 		for row in self.rack.space:
@@ -24,11 +24,29 @@ class RackHelper:
 
 		return rack
 
+	@staticmethod
+	def get_space_empty_row():
+		return {'server': None, 'note_form': None, 'length': 1}
+
+	def get_reverse_side(self):
+		return self.rack.reverse_side.first()
+
+	def create_rack_backside(self):
+		rack_backside = Rack.objects.create(
+			title=self.rack.title,
+			size=self.rack.size,
+			backside=True,
+			space=[self.rack.size]
+		)
+		rack_backside.reverse_side.add(self.rack)
+		return rack_backside
+
 	def check_free_space(self, server_length):
 		return any(map(lambda x: type(x) == int and x >= server_length, self.rack.space))
 
 	def put_server_in_space(self, server: ServerHelper):
 		new_space = []
+
 		for ind, row in enumerate(self.rack.space):
 			if type(row) != int or row < server.server.length:
 				new_space.append(row)

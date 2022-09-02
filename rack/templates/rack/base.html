@@ -5,9 +5,11 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="shortcut icon" type="image/png" href="{% static 'rack/logo-img.png' %}" />
-		<title>{% block title %}
+		<title>
+			{% block title %}
 
-		{% endblock %}</title>
+			{% endblock %}
+		</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script type="module" src="https://cdn.jsdelivr.net/gh/m1kc/turbo-shy/turbo-shy-7.1.0.js"></script>
 		<meta name="turbo-visit-control" content="allow">
@@ -47,10 +49,22 @@
 						<span class="sr-only">Toggle navigation</span>
 					</button>
 					<a class="navbar-brand" href="{% url 'rack_list' %}"><img style="height: 1em" src="{% static 'rack/logo.png' %}" alt="logo"></a>
-					<a href="{% url 'rack_create' %}">
-						<button type="button" class="btn btn-success navbar-btn">Создать стойку</button>
-					</a>
 				</div>
+
+				<a href="{% url 'rack_create' %}">
+					<button type="button" class="btn btn-success navbar-btn">Создать стойку</button>
+				</a>
+
+				{% if user.is_authenticated %}
+					<ul class="nav navbar-nav navbar-right">
+						<li class="navbar-text">
+							Вы вошли, как {{ user.username }}
+						</li>
+						<li class="navbar-link">
+							<a href={% url 'logout' %}>ВЫЙТИ</a>
+						</li>
+					</ul>
+				{% endif %}
 			</div>
 		</nav>
 
