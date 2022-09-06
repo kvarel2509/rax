@@ -1,4 +1,5 @@
 from rack.models import Server, Port
+from rack.services.port import PortHelper
 
 
 class ServerHelper:
@@ -18,17 +19,24 @@ class ServerHelper:
 			base_speed=cleaned_data.get('base_speed'),
 			base_material=cleaned_data.get('base_material'),
 		)
-		default_port = Port(
-			color=cls.DEFAULT_COLOR,
-			speed=cleaned_data['base_speed'],
-			material=cleaned_data['base_material'],
-			server=server,
+
+		Port.objects.bulk_create(
+			[
+				Port(
+					color=cls.DEFAULT_COLOR,
+					speed=cleaned_data['base_speed'],
+					material=cleaned_data['base_material'],
+					server=server,
+					number=number
+				) for number in range(1, cleaned_data['count_ports'] + 1)
+			]
 		)
-		Port.objects.bulk_create([default_port] * cleaned_data['count_ports'])
 		return server
 
-	def delete_ports(self, ports):
-		self.server.port_set.filter(pk__in=ports).delete()
+	def delete_ports(self, id_ports):
+		self.server.port_set.filter(pk__in=id_ports).delete()
+		ports = PortHelper.ports_numbering(self.server.port_set.all().order_by('pk'))
+		ports.bulk_update(ports, ['number'])
 
 	def as_row(self):
 		return {'id': self.server.pk, 'length': self.server.length}

@@ -67,24 +67,22 @@
 
 		<div class="row">
 			<div class="col-lg-12">
-				<table class="ports-list">
-					<tr>
-						{% for i in ports %}
-							<td>
-								<div>
-									{% if i.port.material.lower == "оптика" %}
-										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-thunderbolt-fill"></i>
-									{% else %}
-										<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
-									{% endif %}
-								</div>
-								<div class="text-center {% if not i.port.connection %}muted{% endif %}">
-									<span>{{ forloop.counter }}</span>
-								</div>
-							</td>
-						{% endfor %}
-					</tr>
-				</table>
+				<div class="ports-list">
+					{% for i in ports %}
+						<div class="ports-list__item">
+							<div>
+								{% if i.port.material.lower == "оптика" %}
+									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-thunderbolt-fill"></i>
+								{% else %}
+									<i style="font-size: 15.9px; color: {{ i.port.color }}" class="bi bi-ethernet"></i>
+								{% endif %}
+							</div>
+							<div class="{% if not i.port.connection and not i.link %}muted{% endif %}">
+								<span>{{ i.port.number }}</span>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
 
 			</div>
 		</div>
@@ -118,11 +116,11 @@
 								</td>
 								<td>
 									<strong>
-										Порт {{ forloop.counter }}:
+										Порт {{ i.port.number }}:
 									</strong>
-									Скорость:
+									<span>Скорость:</span>
 									<strong>{{ i.port.speed }}</strong>,
-									Тип:
+									<span>Тип:</span>
 									<strong>{{ i.port.material }}</strong>
 									<small>
 										<button class="btn btn-link btn-xs" onclick="showElement('form-port-update-{{ i.port.pk }}')">Изменить</button>
@@ -139,10 +137,25 @@
 							<tr>
 								<td></td>
 								<td></td>
-								{% if i.port.connection %}
-									<td>Подключен к: {{ i.port.connection }}</td>
+								{% if i.port.connection or i.link %}
+									<td>
+										<span>Подключен к:</span>
+										{% if i.link %}
+											<form id="link_delete" method="post" action="{% url 'link_delete' pk=object.pk pk1=i.port.pk pk2=i.link.pk %}">{% csrf_token %}</form>
+											<a href={% url 'server_detail' pk=i.link.server.pk %}>
+												<span class="bg-info link text-center">
+													{{ i.link.server.title }}, порт {{ i.link.number }}{% if i.link and i.through.speed %}, {{ i.through.speed }}{% endif %}
+												</span>
+											</a>
+											<button form="link_delete" type="submit" class="close" onclick="return confirm('Вы уверены?')">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										{% endif %}
+										{% if i.port.connection %}
+											<p>{{ i.port.connection }}</p>
+										{% endif %}
+									</td>
 								{% endif %}
-
 							</tr>
 							<tr>
 								<td></td>
@@ -227,8 +240,14 @@
 	}
 
 	.ports-list {
-		border-collapse: separate;
-		border-spacing: 5px;
+		display: grid;
+		grid-template-columns: repeat(24, 25px);
+		grid-row-gap: 5px;
+	}
+
+	.ports-list__item {
+		margin: auto;
+		text-align: center;
 	}
 
 	#create-port {
@@ -264,6 +283,16 @@
 
 	.muted {
 		color: #bbbbbb;
+	}
+
+	.link {
+		padding: 3px;
+		border-radius: 5px;
+	}
+
+	.close {
+		float: none;
+		margin-left: 5px;
 	}
 
 	</style>
