@@ -142,10 +142,10 @@
 										<span>Подключён к:</span>
 										{% if i.link %}
 											<a href={% url 'server_detail' pk=i.link.server.pk %}><span class="bg-info link text-center">{{ i.link.server.title }}, порт {{ i.link.number }}{% if i.link and i.through.speed %} ({{ i.through.speed }}){% endif %}</span></a>
-											<button form="link_delete{{ i.link.pk }}" type="submit" class="close" onclick="return confirm('Вы уверены?')">
+											<button form="link_delete-{{ i.port.pk }}" type="submit" class="close" onclick="return confirm('Вы уверены?')">
 												<span aria-hidden="true">&times;</span>
 											</button>
-											<form id="link_delete{{ i.link.pk }}" method="post" action="{% url 'link_delete' pk=object.pk pk1=i.port.pk pk2=i.link.pk %}">{% csrf_token %}</form>
+											<form id="link_delete-{{ i.port.pk }}" method="post" action="{% url 'link_delete' pk=object.pk pk1=i.port.pk pk2=i.link.pk %}">{% csrf_token %}</form>
 										{% endif %}
 										{% if i.port.connection %}
 											<p>{{ i.port.connection }}</p>
