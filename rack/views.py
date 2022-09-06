@@ -38,7 +38,7 @@ class RackCreateView(LoginRequiredMixin, generic.CreateView):
 
 class RackListView(LoginRequiredMixin, generic.ListView):
 	"""Представление для отображения списка стоек"""
-	queryset = Rack.objects.filter(backside__isnull=True)
+	queryset = Rack.objects.filter(backside__isnull=True).order_by('pk')
 
 
 class RackDetailView(LoginRequiredMixin, generic.DetailView):
