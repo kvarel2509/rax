@@ -7,7 +7,8 @@ from .forms import (
 	ServerUpdateForm,
 	RackUpdateForm,
 )
-from .models import Rack, Server, Port
+from .models import Rack, Server, Port, LinkPort
+from .services.port import PortHelper
 from .services.rack import RackHelper
 from .services.server import ServerHelper
 
@@ -37,7 +38,7 @@ class RackCreateView(LoginRequiredMixin, generic.CreateView):
 
 class RackListView(LoginRequiredMixin, generic.ListView):
 	"""Представление для отображения списка стоек"""
-	queryset = Rack.objects.filter(backside__isnull=True)
+	queryset = Rack.objects.filter(backside__isnull=True).order_by('pk')
 
 
 class RackDetailView(LoginRequiredMixin, generic.DetailView):
@@ -87,8 +88,13 @@ class RackDeleteView(LoginRequiredMixin, generic.DeleteView):
 	def delete(self, request, *args, **kwargs):
 		self.object = self.get_object()
 		success_url = self.get_success_url()
+
 		if not self.object.backside:
-			self.object.reverse_side.first().delete()
+			reverse_side = self.object.reverse_side.first()
+
+			if reverse_side:
+				reverse_side.delete()
+
 		self.object.delete()
 		return HttpResponseRedirect(success_url)
 
@@ -118,10 +124,12 @@ class ServerDetailView(LoginRequiredMixin, generic.DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['ports'] = [
-			{'port': port, 'form': PortUpdateForm(instance=port)} for port in self.object.port_set.all().order_by('pk')
-		]
-		context['numerator_ports'] = range(1, len(context['ports']) + 1)
+		context['ports'] = [{
+			'port': port,
+			'form': PortUpdateForm(instance=port),
+			'link': port.link.first(),
+			'through': LinkPort.objects.filter(port1=port).first()
+		} for port in self.object.port_set.all().order_by('pk')]
 		context['create_port_form'] = PortCreateForm(
 			initial={'speed': self.object.base_speed, 'material': self.object.base_material}
 		)
@@ -137,6 +145,10 @@ class PortUpdateView(LoginRequiredMixin, generic.UpdateView):
 	model = Port
 	form_class = PortUpdateForm
 
+	def form_invalid(self, form):
+		messages.error(self.request, 'Изменения не внесены. Проверьте правильность ввода')
+		return HttpResponseRedirect(self.get_success_url())
+
 	def get_success_url(self):
 		return reverse_lazy('server_detail', kwargs={'pk': self.object.server_id})
 
@@ -151,9 +163,15 @@ class PortCreateView(LoginRequiredMixin, generic.CreateView):
 
 	def form_valid(self, form):
 		self.server = Server.objects.get(pk=self.kwargs.get('pk'))
-		port = form.save(commit=False)
-		port.server = self.server
-		Port.objects.bulk_create([port for _ in range(form.cleaned_data['count'])])
+		current_ports_count = self.server.port_set.count()
+		ports = [Port(
+			color=form.cleaned_data.get('color'),
+			speed=form.cleaned_data.get('speed'),
+			material=form.cleaned_data.get('material'),
+			server=self.server
+		) for _ in range(form.cleaned_data['count'])]
+		ports = PortHelper.ports_numbering(ports, current_ports_count + 1)
+		Port.objects.bulk_create(ports, batch_size=50)
 		return HttpResponseRedirect(self.get_url())
 
 	def get_url(self):
@@ -249,3 +267,14 @@ class ServerDeleteView(LoginRequiredMixin, generic.DeleteView):
 	@staticmethod
 	def get_url(rack):
 		return reverse_lazy('rack_detail', kwargs={'pk': rack.rack.pk})
+
+
+class LinkPortDeleteView(LoginRequiredMixin, generic.DeleteView):
+	model = LinkPort
+
+	def delete(self, request, *args, **kwargs):
+		LinkPort.objects.filter(port1_id__in=[self.kwargs.get('pk1'), self.kwargs.get('pk2')]).delete()
+		return HttpResponseRedirect(self.get_success_url())
+
+	def get_success_url(self):
+		return reverse_lazy('server_detail', kwargs={'pk': self.kwargs.get('pk')})

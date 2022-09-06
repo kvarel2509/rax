@@ -30,7 +30,9 @@ class Port(models.Model):
 	speed = models.CharField('Скорость порта', choices=SPEED_CHOICES, max_length=20)
 	material = models.CharField('Тип порта', choices=MATERIAL_CHOICES, max_length=20)
 	server = models.ForeignKey('Server', on_delete=models.CASCADE)
-	connection = models.TextField('Подключён к', blank=True, null=True)
+	connection = models.TextField('Подключён к', blank=True, null=True, help_text='Для создания связи используйте формат #id#номер_порта или #id#номер_порта#скорость, например: #123#1 или #123#1#1000')
+	link = models.ManyToManyField('self', 'Связь с портом', through='LinkPort')
+	number = models.PositiveIntegerField('Порядковый номер порта')
 
 	class Meta:
 		verbose_name = 'Порт'
@@ -58,3 +60,9 @@ class Server(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('server_detail', kwargs={'pk': self.pk})
+
+
+class LinkPort(models.Model):
+	port1 = models.ForeignKey(Port, on_delete=models.CASCADE, related_name='port1')
+	port2 = models.ForeignKey(Port, on_delete=models.CASCADE, related_name='port2')
+	speed = models.CharField('Скорость связи', choices=Port.SPEED_CHOICES, max_length=20, blank=True, null=True)

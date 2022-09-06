@@ -36,6 +36,7 @@
 														>
 															заметки
 														</button>
+														<span style="text-shadow: 0px 1px 0px white">#{{ row.server.pk }}</span>
 
 														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1" role="dialog">
 															<div class="modal-dialog" role="document">
@@ -93,7 +94,7 @@
 														{% endif %}
 													</div>
 
-													<div class="col-lg-5">
+													<div class="col-lg-5" style="padding-left: 0">
 														<form id="server_delete-{{ row.server.id }}" method="post" action="{% url 'server_delete' pk=row.server.id %}">
 															{% csrf_token %}
 														</form>
@@ -180,6 +181,7 @@
 			<div class="col-lg-4">
 				<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
 
+				<div class="h3 text-center">{{ object.title }}</div>
 				<div class="text-center">
 					<div class="vertical-button">
 						<div class="btn-group btn-group-justified">
