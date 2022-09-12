@@ -42,7 +42,7 @@ class RackDetailView(LoginRequiredMixin, generic.DetailView):
 		context['reverse_side'] = self.object.reverse_side.first()
 		context['server_creation_form'] = ServerCreateForm(initial={'rack': self.object.pk})
 		context['rack_update_form'] = RackUpdateForm(instance=self.object)
-		context['size_match'] = 15
+		context['size_match'] = 10
 		context['scale'] = [i for i in range(self.object.size // 3, 0, -1)]
 		context['server_list_reverse_side'] = None
 

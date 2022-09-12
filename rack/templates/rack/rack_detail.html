@@ -20,7 +20,7 @@
 						</div>
 					{% endfor %}
 				</div>
-				<div class="rack-zona">
+				<div class="rack-zone">
 					{% for server in server_list %}
 						<div class="server" style="background: {{ server.object.color }}; height: calc({{ size_match }}px * {{ server.object.length }}); top: calc({{ size_match }}px * {{ server.object.position }})">
 							<div class="server__note-block">
@@ -48,6 +48,7 @@
 								<button class="btn btn-info btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="down3">&darr; U</button>
 								<button class="btn btn-success btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="min">&uarr;max</button>
 								<button class="btn btn-info btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="max">&darr;max</button>
+								<button class="hidden server-mouse-move" form="server-move-{{ server.object.pk }}" type="submit" name="position" value=""></button>
 								<button type="submit" class="btn btn-danger btn-xs btn-border" form="server_delete-{{ server.object.pk }}" onclick="return confirm('Вы уверены?')">&times;</button>
 							</div>
 						</div>
@@ -82,7 +83,7 @@
 				</div>
 			</div>
 			<div class="col-lg-4 control">
-				<div class="control-zona">
+				<div class="control-zone">
 					<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
 					<div class="control-zona__title h3 text-center">{{ object.title }}</div>
 					<div class="control-zona__side btn-group btn-group-justified">
@@ -128,50 +129,53 @@
 		</div>
 	</div>
 {% endblock %}
-{% block script_body %}
-	<script>
-		let rackZona = document.querySelector('.rack-zona')
-		let snap = {{ size_match }};
-		let dragObj = {}
+{% block script_head %}
+	<script data-turbo-track="reload">
+		document.addEventListener('turbo:load', activateDragAndDrop)
 
-		function dragInitialHandler(event) {
-			if (!event.shiftKey) return
-			let item = event.target.closest('.server')
-			if (!item) return
-			dragObj.item = item
-			dragObj.form = item.querySelector('.form-move')
-			dragObj.item.style.zIndex = '2'
-			dragObj.startY = event.y
-			dragObj.startTop = item.offsetTop
-		}
-		
-		function mouseMoveHandler(event) {
-			if (!dragObj.item) return
+		function activateDragAndDrop() {
+			document.addEventListener('mousedown', dragInitialHandler)
+			document.addEventListener('mousemove', mouseMoveHandler)
+			document.addEventListener('mouseup', mouseUpHandler)
 
-			let diffY = event.y - dragObj.startY
-			let offsetY = diffY % snap
+			let rackZona = document.querySelector('.rack-zone')
+			let snap = {{ size_match }};
+			let dragObj = {}
 
-			let value
-			if (offsetY > snap / 2) value = dragObj.startTop + diffY + snap - offsetY
-			else value = dragObj.startTop + diffY - offsetY
-
-			if (value < 0) dragObj.item.style.top = 0 + 'px'
-			else if (value > rackZona.offsetHeight - dragObj.item.offsetHeight) {
-				dragObj.item.style.top = rackZona.offsetHeight - dragObj.item.offsetHeight + 'px'
+			function dragInitialHandler(event) {
+				if (!event.shiftKey) return
+				let item = event.target.closest('.server')
+				if (!item) return
+				dragObj.item = item
+				dragObj.btn_submit = item.querySelector('.server-mouse-move')
+				dragObj.item.style.zIndex = '2'
+				dragObj.startY = event.y
+				dragObj.startTop = item.offsetTop
 			}
-			else dragObj.item.style.top = value + 'px'
-		}
-		
-		function mouseUpHandler(event) {
-			if (!dragObj.item) return
-			dragObj.item.style.zIndex = '1'
-			dragObj.form.querySelector('#move_value').value = dragObj.item.offsetTop / {{ size_match }};
-			dragObj.form.submit()
-		}
 
-		document.addEventListener('mousedown', dragInitialHandler)
-		document.addEventListener('mousemove', mouseMoveHandler)
-		document.addEventListener('mouseup', mouseUpHandler)
+			function mouseMoveHandler(event) {
+				if (!dragObj.item) return
+
+				let diffY = event.y - dragObj.startY
+				let offsetY = diffY % snap
+
+				let value
+				if (offsetY > snap / 2) value = dragObj.startTop + diffY + snap - offsetY
+				else value = dragObj.startTop + diffY - offsetY
+
+				if (value < 0) dragObj.item.style.top = 0 + 'px'
+				else if (value > rackZona.offsetHeight - dragObj.item.offsetHeight) {
+					dragObj.item.style.top = rackZona.offsetHeight - dragObj.item.offsetHeight + 'px'
+				} else dragObj.item.style.top = value + 'px'
+			}
+
+			function mouseUpHandler(event) {
+				if (!dragObj.item) return
+				dragObj.item.style.zIndex = '1'
+				dragObj.btn_submit.value = dragObj.item.offsetTop / {{ size_match }};
+				dragObj.btn_submit.click()
+			}
+		}
 	</script>
 {% endblock %}
 {% block style %}
@@ -204,7 +208,7 @@
 			height: {{ size_match }}px;
 			border-bottom: 1px solid black;
 		}
-		.rack-zona {
+		.rack-zone {
 			position: relative;
 			flex-grow: 1;
 			outline: 1px solid black;
@@ -255,12 +259,12 @@
 			z-index: 0;
 			background: repeating-linear-gradient(45deg, #e0e0e0, #d9d9d9 10px, #cecece 10px, #c5c5c5 20px);
 		}
-		.control-zona {
+		.control-zone {
 			display: flex;
 			flex-direction: column;
 			justify-items: stretch;
 		}
-		.control-zona > * {
+		.control-zone > * {
 			margin: 3px 0;
 		}
 		.control-zona__form {
@@ -277,5 +281,4 @@
 		}
 	</style>
 {% endblock %}
-{% block script_head %}
-{% endblock %}
+

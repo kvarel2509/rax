@@ -21,7 +21,7 @@ def forward_func(apps, schema_editor):
                 server.position = position
                 position += elem['length']
 
-    Server.objects.bulk_update(servers, ['position'], batch_size=50)
+    servers.bulk_update(servers, ['position'], batch_size=50)
 
 
 class Migration(migrations.Migration):
