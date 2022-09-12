@@ -12,7 +12,7 @@
 		</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script type="module" src="https://cdn.jsdelivr.net/gh/m1kc/turbo-shy/turbo-shy-7.1.0.js"></script>
-		<meta name="turbo-visit-control" content="allow">
+
 		<!-- Bootstrap 3.4.1 -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css">
@@ -20,17 +20,20 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 		<!-- bootstrap-icons -->
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+		{% block script_head %}
+			<meta name="turbo-visit-control" content="allow">
+		{% endblock %}
 	</head>
 	<body>
 		<script>
 			function showElement(id) {
 				let element = document.getElementById(id)
-				element.setAttribute('class', 'show')
+				element.classList.remove('hidden')
 			}
 
 			function hideElement(id) {
 				let element = document.getElementById(id)
-				element.setAttribute('class', 'hidden')
+				element.classList.add('hidden')
 			}
 
 			function selectAllPorts() {
@@ -87,10 +90,18 @@
 					{% endfor %}
 				{% endif %}
 			</div>
+			<div class="row">
+				{% block content %}
 
-			{% block content %}
+				{% endblock %}
+			</div>
 
-			{% endblock %}
 		</div>
+		{% block script_body %}
+
+		{% endblock %}
 	</body>
+	{% block style %}
+
+	{% endblock %}
 </html>

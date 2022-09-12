@@ -5,7 +5,7 @@ from django.urls import reverse
 class Rack(models.Model):
 	title = models.CharField('Название стойки', max_length=50)
 	size = models.PositiveIntegerField('Размер', help_text='Размер измеряется в целых юнитах')
-	space = models.JSONField('Пространство для серверов')
+	space = models.JSONField('Пространство для серверов', null=True)
 	note = models.TextField('Заметки', blank=True, null=True)
 	reverse_side = models.ManyToManyField('self', verbose_name='Обратная сторона стойки')
 	backside = models.BooleanField('Является задней стороной?', blank=True, null=True)
@@ -44,6 +44,7 @@ class Port(models.Model):
 
 class Server(models.Model):
 	title = models.CharField('Название', max_length=50)
+	position = models.PositiveIntegerField('Позиция на сервере', default=0)
 	length = models.PositiveIntegerField('Размер')
 	note = models.TextField('Заметки', blank=True, null=True)
 	rack = models.ForeignKey(Rack, on_delete=models.SET_NULL, null=True)

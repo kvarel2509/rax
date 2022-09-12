@@ -38,9 +38,6 @@ class ServerHelper:
 		ports = PortHelper.ports_numbering(self.server.port_set.all().order_by('pk'))
 		ports.bulk_update(ports, ['number'])
 
-	def as_row(self):
-		return {'id': self.server.pk, 'length': self.server.length}
-
 
 class ServerLengthParseError(Exception):
 	pass

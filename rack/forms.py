@@ -1,5 +1,6 @@
 from .models import Rack, Server, Port
 from .services.port import PortConnectionParser, PortNotFoundError, PortHelper, PortIsNotFreeError
+from .services.rack import RackHelper, NoFreePositionOnRackError
 from .services.server import ServerLengthParser, ServerLengthParseError
 
 from django import forms
@@ -21,6 +22,10 @@ class RackCreateForm(forms.ModelForm):
 		model = Rack
 		fields = ['title', 'size']
 
+	def clean_size(self):
+		size = self.cleaned_data.get('size')
+		return size * 3
+
 
 class ServerUpdateForm(forms.ModelForm):
 
@@ -41,22 +46,52 @@ class ServerCreateForm(forms.ModelForm):
 
 	class Meta:
 		model = Server
-		fields = ['title', 'length', 'unit', 'color', 'note', 'count_ports', 'base_speed', 'base_material']
-		widgets = {'note': forms.Textarea(attrs={'cols': 25})}
+		fields = ['title', 'length', 'unit', 'color', 'note', 'count_ports', 'base_speed', 'base_material', 'rack']
+		widgets = {
+			'note': forms.Textarea(attrs={'cols': 25}),
+			'rack': forms.HiddenInput(),
+		}
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self._length = None
-
-	def clean(self):
-		super().clean()
+	def clean_length(self):
 		parser = ServerLengthParser(self.cleaned_data.get('length'))
 		try:
-			self._length = parser.parse_string(self.cleaned_data.get('unit'))
-			self.cleaned_data['length'] = self._length
+			return parser.parse_string(self.cleaned_data.get('unit'))
 		except ServerLengthParseError:
 			raise ValidationError('Не удалось расшифровать размер сервера')
-		return self.cleaned_data
+
+
+class ServerUpdatePositionForm(forms.ModelForm):
+	position = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'move_value'}))
+
+	class Meta:
+		model = Server
+		fields = ['position']
+
+	def clean_position(self):
+		position = self.cleaned_data.get('position')
+		rack = RackHelper(Rack.objects.get(pk=self.instance.rack_id))
+
+		if position.isdigit():
+			position_range = range(int(position), int(position) + 1)
+		elif position == 'up1':
+			position_range = range(self.instance.position - 1, -1, -1)
+		elif position == 'up3':
+			position_range = range(self.instance.position - 3, -1, -1)
+		elif position == 'down1':
+			position_range = range(self.instance.position + 1, rack.rack.size - self.instance.length + 1)
+		elif position == 'down3':
+			position_range = range(self.instance.position + 3, rack.rack.size - self.instance.length + 1)
+		elif position == 'max':
+			position_range = range(rack.rack.size - self.instance.length, self.instance.position, -1)
+		elif position == 'min':
+			position_range = range(self.instance.position)
+		else:
+			raise ValidationError('Недопустимый параметр в аргументе position')
+
+		try:
+			return rack.get_free_position(self.instance, position_range)
+		except NoFreePositionOnRackError:
+			raise ValidationError('Сервер не удалось переместить. Проверьте, что выбранная позиция свободна.')
 
 
 class ServerNoteForm(forms.ModelForm):
@@ -121,4 +156,7 @@ class PortCreateForm(PortForm):
 	count = forms.IntegerField(label='Количество портов', min_value=1, initial=1)
 
 	class Meta(PortForm.Meta):
-		fields = ['color', 'speed', 'material', 'note', 'count']
+		fields = ['color', 'speed', 'material', 'note', 'count', 'server']
+		widgets = {
+			'server': forms.HiddenInput()
+		}

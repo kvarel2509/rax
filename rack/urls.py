@@ -8,12 +8,11 @@ from .views import (
 	ServerDeleteView,
 	ServerNoteCreateView,
 	ServerUpdateView,
-	MoveServerView,
 	ServerDetailView,
 	PortUpdateView,
 	PortCreateView,
 	PortDeleteView,
-	RackCreateBackSideView, LinkPortDeleteView,
+	RackCreateBackSideView, LinkPortDeleteView, ServerUpdatePositionView,
 )
 
 from django.contrib.auth.views import LoginView, LogoutView
@@ -37,7 +36,7 @@ urlpatterns = [
 		path('<int:pk>/delete_ports/', PortDeleteView.as_view(), name='ports_delete'),
 		path('<int:pk>/server_note_create/', ServerNoteCreateView.as_view(), name='server_note_create'),
 		path('<int:pk>/create_port/', PortCreateView.as_view(), name='port_create'),
-		path('<int:pk>/move/', MoveServerView.as_view(), name='server_move'),
+		path('<int:pk>/move/', ServerUpdatePositionView.as_view(), name='server_move'),
 		path('<int:pk>/<int:pk1>-<int:pk2>/link-delete/', LinkPortDeleteView.as_view(), name='link_delete')
 	])),
 	path('port/', include([
