@@ -39,7 +39,6 @@
 									</div>
 								{% endif %}
 							</div>
-
 							<div class="server__control-block">
 								<form class="form-move" id="server-move-{{ server.object.pk }}" method="post" action="{% url 'server_move' pk=server.object.pk %}">{% csrf_token %}{{ server.position_form }}</form>
 								<form id="server_delete-{{ server.object.pk }}" method="post" action="{% url 'server_delete' pk=server.object.pk %}">{% csrf_token %}</form>

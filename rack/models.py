@@ -30,7 +30,7 @@ class Port(models.Model):
 	speed = models.CharField('Скорость порта', choices=SPEED_CHOICES, max_length=20)
 	material = models.CharField('Тип порта', choices=MATERIAL_CHOICES, max_length=20)
 	server = models.ForeignKey('Server', on_delete=models.CASCADE)
-	connection = models.TextField('Подключён к', blank=True, null=True)
+	connection = models.TextField('Подключён к', blank=True, null=True, help_text='Для создания связи используйте формат #id#номер_порта или #id#номер_порта#скорость, например: #123#1 или #123#1#1000')
 	link = models.ManyToManyField('self', 'Связь с портом', through='LinkPort')
 	number = models.PositiveIntegerField('Порядковый номер порта')
 
