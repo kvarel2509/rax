@@ -130,52 +130,51 @@
 	</div>
 {% endblock %}
 {% block script_head %}
-	<script data-turbo-track="reload">
-		document.addEventListener('turbo:load', activateDragAndDrop)
+	<script>
+	document.addEventListener('mousedown', dragInitialHandler)
 
-		function activateDragAndDrop() {
-			document.addEventListener('mousedown', dragInitialHandler)
-			document.addEventListener('mousemove', mouseMoveHandler)
-			document.addEventListener('mouseup', mouseUpHandler)
+	function dragInitialHandler(event) {
+		let rackZona = document.querySelector('.rack-zone')
+		let snap = {{ size_match }};
+		let dragObj = {}
 
-			let rackZona = document.querySelector('.rack-zone')
-			let snap = {{ size_match }};
-			let dragObj = {}
+		if (!event.ctrlKey) return
 
-			function dragInitialHandler(event) {
-				if (!event.shiftKey) return
-				let item = event.target.closest('.server')
-				if (!item) return
-				dragObj.item = item
-				dragObj.btn_submit = item.querySelector('.server-mouse-move')
-				dragObj.item.style.zIndex = '2'
-				dragObj.startY = event.y
-				dragObj.startTop = item.offsetTop
+		let item = event.target.closest('.server')
+		if (!item) return
+		dragObj.item = item
+		dragObj.btn_submit = item.querySelector('.server-mouse-move')
+		dragObj.item.style.zIndex = '2'
+		dragObj.startY = event.y
+		dragObj.startTop = item.offsetTop
+
+		document.addEventListener('mousemove', mouseMoveHandler)
+		document.addEventListener('mouseup', mouseUpHandler)
+
+		function mouseMoveHandler(event) {
+			let diffY = event.y - dragObj.startY
+			let offsetY = diffY % snap
+
+			let value
+			if (offsetY > snap / 2) value = dragObj.startTop + diffY + snap - offsetY
+			else value = dragObj.startTop + diffY - offsetY
+
+			if (value < 0) dragObj.item.style.top = 0 + 'px'
+			else if (value > rackZona.offsetHeight - dragObj.item.offsetHeight) {
+				dragObj.item.style.top = rackZona.offsetHeight - dragObj.item.offsetHeight + 'px'
 			}
-
-			function mouseMoveHandler(event) {
-				if (!dragObj.item) return
-
-				let diffY = event.y - dragObj.startY
-				let offsetY = diffY % snap
-
-				let value
-				if (offsetY > snap / 2) value = dragObj.startTop + diffY + snap - offsetY
-				else value = dragObj.startTop + diffY - offsetY
-
-				if (value < 0) dragObj.item.style.top = 0 + 'px'
-				else if (value > rackZona.offsetHeight - dragObj.item.offsetHeight) {
-					dragObj.item.style.top = rackZona.offsetHeight - dragObj.item.offsetHeight + 'px'
-				} else dragObj.item.style.top = value + 'px'
-			}
-
-			function mouseUpHandler(event) {
-				if (!dragObj.item) return
-				dragObj.item.style.zIndex = '1'
-				dragObj.btn_submit.value = dragObj.item.offsetTop / {{ size_match }};
-				dragObj.btn_submit.click()
-			}
+			else dragObj.item.style.top = value + 'px'
 		}
+
+		function mouseUpHandler(event) {
+			document.removeEventListener('mousemove', mouseMoveHandler)
+			document.removeEventListener('mouseup', mouseUpHandler)
+
+			dragObj.item.style.zIndex = '1'
+			dragObj.btn_submit.value = dragObj.item.offsetTop / {{ size_match }};
+			dragObj.btn_submit.click()
+		}
+	}
 	</script>
 {% endblock %}
 {% block style %}
