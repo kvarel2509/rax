@@ -20,8 +20,7 @@ def forward_func(apps, schema_editor):
                 server = servers.get(pk=elem['id'])
                 server.position = position
                 position += elem['length']
-
-    servers.bulk_update(servers, ['position'], batch_size=50)
+                server.save()
 
 
 class Migration(migrations.Migration):
