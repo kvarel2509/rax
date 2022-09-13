@@ -134,14 +134,15 @@
 	document.addEventListener('mousedown', dragInitialHandler)
 
 	function dragInitialHandler(event) {
+		let item = event.target.closest('.server')
+		if (!item) return
+
 		let rackZona = document.querySelector('.rack-zone')
 		let snap = {{ size_match }};
 		let dragObj = {}
 
 		if (!event.ctrlKey) return
 
-		let item = event.target.closest('.server')
-		if (!item) return
 		dragObj.item = item
 		dragObj.btn_submit = item.querySelector('.server-mouse-move')
 		dragObj.item.style.zIndex = '2'
