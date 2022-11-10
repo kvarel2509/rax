@@ -140,7 +140,7 @@ class ServerCreateView(LoginRequiredMixin, generic.CreateView):
 				form.instance,
 				range(rack.rack.size - form.cleaned_data.get('length') + 1)
 			)
-			self.object = form.save()
+			self.object = ServerHelper.create_server(form)
 		except NoFreePositionOnRackError:
 			messages.error(self.request, 'Сервер не добавлен. Нет свободного места')
 
@@ -208,6 +208,7 @@ class PortCreateView(LoginRequiredMixin, generic.CreateView):
 			color=form.cleaned_data.get('color'),
 			speed=form.cleaned_data.get('speed'),
 			material=form.cleaned_data.get('material'),
+			note=form.cleaned_data.get('note'),
 			server=self.server
 		) for _ in range(form.cleaned_data['count'])]
 		ports = PortHelper.ports_numbering(ports, current_ports_count + 1)

@@ -1,0 +1,39 @@
+<div class="color-widget__as23f">
+	<input
+		type="{{ widget.type }}"
+		name="{{ widget.name }}"
+		{% if widget.value != None %}
+			value="{{ widget.value|stringformat:'s' }}"
+		{% endif %}
+	{% for name, value in widget.attrs.items %}
+		{% if value is not False %}
+			{{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}
+		{% endif %}
+	{% endfor %}
+	>
+	{% for color in favorite_colors %}
+		<div class="favorite-color" onclick="this.parentNode.firstElementChild.value = '{{ color }}'" style="background: {{ color }}"></div>
+	{% endfor %}
+</div>
+
+<style>
+	.color-widget__as23f {
+		display: grid;
+		grid-template-columns: repeat(12, max-content);
+		grid-template-rows: repeat(12, max-content);
+		width: inherit;
+		place-items: center;
+	}
+	.color-widget__as23f input {
+		margin: 0 10px 0 0;
+		grid-row: 1 / -1;
+	}
+	.favorite-color {
+		border: 1px solid black;
+		width: 15px;
+		height: 15px;
+		border-radius: 3px;
+		cursor: pointer;
+		margin: 1px;
+	}
+</style>

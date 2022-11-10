@@ -19,7 +19,6 @@ class RackHelper:
 		return rack_backside
 
 	def get_free_position(self, server_applicant: Server, iterator_position: iter) -> int:
-		print(iterator_position)
 		servers = self.rack.server_set.exclude(pk=server_applicant.pk)
 
 		for position in iterator_position:

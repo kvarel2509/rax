@@ -35,7 +35,7 @@
 								</a>
 								{% if server.object.note %}
 									<div class="server__title-block__note">
-											{{ server.object.note|truncatechars:30 }}
+											{{ server.object.note|urlize|truncatechars_html:30 }}
 									</div>
 								{% endif %}
 							</div>
@@ -105,7 +105,7 @@
 					<button form="rack-delete" type="submit" class="btn btn-danger" title="Удалить стойку" onclick="return confirm('{% if not object.backside %}Вы удаляете переднюю сторону. Задняя сторона также будет удалена.{% endif %} Вы уверены?')">&times; Удалить стойку</button>
 					<div class="control-zona__note">
 						{% if object.note %}
-							<pre>{{ object.note }}</pre>
+							<pre>{{ object.note|urlize }}</pre>
 						{% endif %}
 					</div>
 					<div id="rack-update" class="control-zona__form hidden">
@@ -131,7 +131,7 @@
 {% endblock %}
 {% block script_head %}
 	<script>
-	document.addEventListener('mousedown', dragInitialHandler)
+	// document.addEventListener('mousedown', dragInitialHandler)
 
 	function dragInitialHandler(event) {
 		let item = event.target.closest('.server')

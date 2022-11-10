@@ -67,3 +67,7 @@ class LinkPort(models.Model):
 	port1 = models.ForeignKey(Port, on_delete=models.CASCADE, related_name='port1')
 	port2 = models.ForeignKey(Port, on_delete=models.CASCADE, related_name='port2')
 	speed = models.CharField('Скорость связи', choices=Port.SPEED_CHOICES, max_length=20, blank=True, null=True)
+
+
+class FavoriteColor(models.Model):
+	color = models.CharField('Цвет', max_length=30)

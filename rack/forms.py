@@ -1,4 +1,5 @@
-from .models import Rack, Server, Port
+from .models import Rack, Server, Port, FavoriteColor
+from .services.widgets import ColorInput
 from .services.port import PortConnectionParser, PortNotFoundError, PortHelper, PortIsNotFreeError
 from .services.rack import RackHelper, NoFreePositionOnRackError
 from .services.server import ServerLengthParser, ServerLengthParseError
@@ -33,7 +34,7 @@ class ServerUpdateForm(forms.ModelForm):
 		model = Server
 		fields = ['title', 'color', 'note', 'base_speed', 'base_material']
 		widgets = {
-			'color': forms.TextInput(attrs={'type': 'color'}),
+			'color': ColorInput(favorite_colors=FavoriteColor.objects.all().values_list('color', flat=True)),
 			'note':  forms.Textarea(attrs={'rows': 5})
 		}
 
@@ -42,7 +43,9 @@ class ServerCreateForm(forms.ModelForm):
 	length = forms.CharField(label='Размер')
 	unit = forms.ChoiceField(label='Мера', choices=(('u', 'u'), ('1/3u', '1/3u')))
 	count_ports = forms.IntegerField(label='Портов', min_value=0, initial=1)
-	color = forms.CharField(label='Цвет', widget=forms.TextInput(attrs={'type': 'color'}), initial='#c9c9c9')
+	color = forms.CharField(label='Цвет', widget=ColorInput(
+		favorite_colors=FavoriteColor.objects.all().values_list('color', flat=True)
+	), initial='#c9c9c9')
 
 	class Meta:
 		model = Server
@@ -55,7 +58,7 @@ class ServerCreateForm(forms.ModelForm):
 	def clean_length(self):
 		parser = ServerLengthParser(self.cleaned_data.get('length'))
 		try:
-			return parser.parse_string(self.cleaned_data.get('unit'))
+			return parser.parse_string(self.data.get('unit'))
 		except ServerLengthParseError:
 			raise ValidationError('Не удалось расшифровать размер сервера')
 
@@ -108,7 +111,7 @@ class PortForm(forms.ModelForm):
 		model = Port
 		fields = ['color', 'speed', 'material', 'note', 'connection']
 		widgets = {
-			'color': forms.TextInput(attrs={'type': 'color', }),
+			'color': ColorInput(favorite_colors=FavoriteColor.objects.all().values_list('color', flat=True)),
 			'note': forms.Textarea(attrs={'rows': 3, }),
 			'connection': forms.Textarea(attrs={'rows': 3, }),
 		}
@@ -157,6 +160,19 @@ class PortCreateForm(PortForm):
 
 	class Meta(PortForm.Meta):
 		fields = ['color', 'speed', 'material', 'note', 'count', 'server']
+		widgets = ({
+			'server': forms.HiddenInput(),
+			'color': ColorInput(favorite_colors=FavoriteColor.objects.all().values_list('color', flat=True)),
+			'note': forms.Textarea(attrs={'rows': 3, }),
+			'connection': forms.Textarea(attrs={'rows': 3, }),
+		})
+
+
+class FavoriteColorAdminForm(forms.ModelForm):
+
+	class Meta:
+		model = FavoriteColor
+		fields = '__all__'
 		widgets = {
-			'server': forms.HiddenInput()
+			'color': forms.TextInput(attrs={'type': 'color'})
 		}
