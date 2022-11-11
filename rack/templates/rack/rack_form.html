@@ -1,0 +1,30 @@
+{% extends 'rack/base.html' %}
+
+{% block title %}
+	Новая стойка ­&mdash; rax
+{% endblock %}
+
+{% block content %}
+	<form method="post">
+		{% csrf_token %}
+		<table>
+			{{ form.as_table }}
+		</table>
+
+		<button type="submit" class="btn btn-primary">Сохранить</button>
+		<a type="button" class="btn btn-default" href="{% url 'rack_list' %}">&larr; Назад</a>
+	</form>
+{% endblock %}
+
+{% block style %}
+	<style>
+		table {
+			margin: 10px;
+			padding: 10px;
+			border-collapse: separate;
+			border-spacing: 10px 2px;
+			background: rgba(224, 243, 255, 0.35);
+			border-radius: 10px;
+		}
+	</style>
+{% endblock %}

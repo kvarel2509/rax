@@ -1,4 +1,4 @@
-from rack.models import Server, Port
+from rack.models import Port
 from rack.services.port import PortHelper
 
 
@@ -9,26 +9,18 @@ class ServerHelper:
 		self.server = server
 
 	@classmethod
-	def create_server(cls, cleaned_data):
-		server = Server.objects.create(
-			title=cleaned_data.get('title'),
-			length=cleaned_data.get('length'),
-			note=cleaned_data.get('note'),
-			rack=cleaned_data.get('rack'),
-			color=cleaned_data.get('color'),
-			base_speed=cleaned_data.get('base_speed'),
-			base_material=cleaned_data.get('base_material'),
-		)
+	def create_server(cls, form):
+		server = form.save()
 
 		Port.objects.bulk_create(
 			[
 				Port(
 					color=cls.DEFAULT_COLOR,
-					speed=cleaned_data['base_speed'],
-					material=cleaned_data['base_material'],
+					speed=server.base_speed,
+					material=server.base_material,
 					server=server,
 					number=number
-				) for number in range(1, cleaned_data['count_ports'] + 1)
+				) for number in range(1, form.cleaned_data.get('count_ports') + 1)
 			]
 		)
 		return server
@@ -37,9 +29,6 @@ class ServerHelper:
 		self.server.port_set.filter(pk__in=id_ports).delete()
 		ports = PortHelper.ports_numbering(self.server.port_set.all().order_by('pk'))
 		ports.bulk_update(ports, ['number'])
-
-	def as_row(self):
-		return {'id': self.server.pk, 'length': self.server.length}
 
 
 class ServerLengthParseError(Exception):

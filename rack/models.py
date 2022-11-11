@@ -5,7 +5,7 @@ from django.urls import reverse
 class Rack(models.Model):
 	title = models.CharField('Название стойки', max_length=50)
 	size = models.PositiveIntegerField('Размер', help_text='Размер измеряется в целых юнитах')
-	space = models.JSONField('Пространство для серверов')
+	space = models.JSONField('Пространство для серверов', null=True)
 	note = models.TextField('Заметки', blank=True, null=True)
 	reverse_side = models.ManyToManyField('self', verbose_name='Обратная сторона стойки')
 	backside = models.BooleanField('Является задней стороной?', blank=True, null=True)
@@ -44,6 +44,7 @@ class Port(models.Model):
 
 class Server(models.Model):
 	title = models.CharField('Название', max_length=50)
+	position = models.PositiveIntegerField('Позиция на сервере', default=0)
 	length = models.PositiveIntegerField('Размер')
 	note = models.TextField('Заметки', blank=True, null=True)
 	rack = models.ForeignKey(Rack, on_delete=models.SET_NULL, null=True)
@@ -66,3 +67,8 @@ class LinkPort(models.Model):
 	port1 = models.ForeignKey(Port, on_delete=models.CASCADE, related_name='port1')
 	port2 = models.ForeignKey(Port, on_delete=models.CASCADE, related_name='port2')
 	speed = models.CharField('Скорость связи', choices=Port.SPEED_CHOICES, max_length=20, blank=True, null=True)
+
+
+class FavoriteColor(models.Model):
+	title = models.CharField('Название', max_length=30)
+	color = models.CharField('Цвет', max_length=30)

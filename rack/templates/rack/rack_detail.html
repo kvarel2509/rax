@@ -4,328 +4,281 @@
 {% block title %}
 	{{ object.title }} (стойка) &mdash; rax
 {% endblock %}
-
 {% block content %}
 	<div class="container">
 		<div class="row">
-			<div class="col-lg-8">
-				<div class="rack">
-					<table>
-						{% for i in object.size|get_range %}
-							{% get_item space_main i as row %}
-							{% get_item space_reverse i as row_reverse %}
-							{% get_item numbering i as number_elem %}
-							<tr>
-								{% if number_elem.length %}
-									<td class="numerator-row" rowspan="{{ number_elem.length }}">
-										{{ number_elem.value }}
-									</td>
+			<div class="col-lg-8 rack">
+				<div class="scale">
+					{% for number in scale %}
+						<div class="scale__row">
+							<div class="scale__row__unit">{{ number }}</div>
+							<div class="scale__row__under-unit">
+								<div class="scale__row__under-unit__item"></div>
+								<div class="scale__row__under-unit__item"></div>
+								<div class="scale__row__under-unit__item"></div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+				<div class="rack-zone">
+					{% for server in server_list %}
+						<div class="server" style="background: {{ server.object.color }}; height: calc({{ size_match }}px * {{ server.object.length }}); top: calc({{ size_match }}px * {{ server.object.position }})">
+							<div class="server__note-block">
+								<button type="button" class="btn btn-primary btn-xs server__btn-control" data-toggle="modal" data-target="#myModal2-{{ server.object.pk }}">
+									заметки
+								</button>
+							</div>
+
+							<div class="server__title-block">
+								<a href="{% url 'server_detail' pk=server.object.pk %}" class="server__title-block__name">
+									{{ server.object.title }}
+								</a>
+								{% if server.object.note %}
+									<div class="server__title-block__note">
+											{{ server.object.note|urlize|truncatechars_html:30 }}
+									</div>
 								{% endif %}
-
-								{% if row %}
-									{% if row.server %}
-										<td style="background: {{ row.server.color }}" rowspan="{{ row.length }}">
-											<div class="container-fluid">
-												<div class="row">
-													<div class="col-lg-2">
-														<button
-															type="button"
-															class="btn btn-primary btn-xs text-left rack-row-move"
-															data-toggle="modal"
-															data-target="#myModal2-{{ row.server.id }}"
-														>
-															заметки
-														</button>
-														<span style="text-shadow: 0px 1px 0px white">#{{ row.server.pk }}</span>
-
-														<div class="modal fade" id="myModal2-{{ row.server.id }}" tabindex="-1" role="dialog">
-															<div class="modal-dialog" role="document">
-																<div class="modal-content">
-																	<div class="modal-header">
-																		<button
-																			type="button"
-																			class="close"
-																			data-dismiss="modal"
-																			aria-label="Close"
-																		>
-																			<span aria-hidden="true">&times;</span>
-																		</button>
-																		<h4 class="modal-title" id="myModalLabel">Заметки</h4>
-																	</div>
-																	<div class="modal-body">
-																		<form
-																			method="post"
-																			action="{% url 'server_note_create' row.server.id %}"
-																		>
-																			{% csrf_token %}
-																			{{ row.note_form.as_p }}
-																			<button type="submit" class="btn btn-primary">
-																				Сохранить
-																			</button>
-																			<button
-																				type="reset"
-																				class="btn btn-default"
-																				data-dismiss="modal"
-																			>
-																				Отменить
-																			</button>
-
-																		</form>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-
-													<div class="col-lg-5 server-info text-center">
-														<div>
-															<strong>
-																<a class="server-info__name" href={% url 'server_detail' pk=row.server.pk %}>
-																	{{ row.server.title }}
-																</a>
-															</strong>
-														</div>
-														{% if row.server.note %}
-															<div class="server-info__note-block">
-																<small class="server-info__note-block__text">
-																	{{ row.server.note|truncatechars:30 }}
-																</small>
-															</div>
-														{% endif %}
-													</div>
-
-													<div class="col-lg-5" style="padding-left: 0">
-														<form id="server_delete-{{ row.server.id }}" method="post" action="{% url 'server_delete' pk=row.server.id %}">
-															{% csrf_token %}
-														</form>
-														<form id="server-move-{{ row.server.id }}" method="post" action="{% url 'server_move' pk=row.server.id %}">
-															{% csrf_token %}
-														</form>
-														<div>
-															<button
-																type="submit"
-																class="btn btn-success btn-xs rack-row-move"
-																form="server-move-{{ row.server.id }}"
-																name="move_type"
-																value="up1"
-															>
-																&uarr; 1/3
-															</button>
-															<button
-																type="submit"
-																class="btn btn-info btn-xs rack-row-move"
-																form="server-move-{{ row.server.id }}"
-																name="move_type"
-																value="down1"
-															>
-																&darr; 1/3
-															</button>
-															<button
-																type="submit"
-																class="btn btn-success btn-xs rack-row-move"
-																form="server-move-{{ row.server.id }}"
-																name="move_type"
-																value="up3"
-															>
-																&uarr; U
-															</button>
-															<button
-																type="submit"
-																class="btn btn-info btn-xs rack-row-move"
-																form="server-move-{{ row.server.id }}"
-																name="move_type"
-																value="down3"
-															>
-																&darr; U
-															</button>
-															<button
-																type="submit"
-																class="btn btn-success btn-xs rack-row-move"
-																form="server-move-{{ row.server.id }}"
-																name="move_type"
-																value="up_max"
-															>
-																&uarr;max
-															</button>
-															<button
-																type="submit"
-																class="btn btn-info btn-xs rack-row-move"
-																form="server-move-{{ row.server.id }}"
-																name="move_type"
-																value="down_max"
-															>
-																&darr;max
-															</button>
-															<button
-																type="submit"
-																class="btn btn-danger btn-xs rack-row-move"
-																form="server_delete-{{ row.server.id }}"
-																onclick="return confirm('Вы уверены?')"
-															>
-																&times;
-															</button>
-														</div>
-													</div>
-												</div>
-											</div>
-										</td>
-									{% else %}
-										<td {% if not row_reverse or row_reverse.server %}class="stripes"{% endif %} rowspan="{{ row.length }}"></td>
-									{% endif %}
-								{% endif %}
-							</tr>
-						{% endfor %}
-					</table>
+							</div>
+							<div class="server__control-block">
+								<form class="form-move" id="server-move-{{ server.object.pk }}" method="post" action="{% url 'server_move' pk=server.object.pk %}">{% csrf_token %}{{ server.position_form }}</form>
+								<form id="server_delete-{{ server.object.pk }}" method="post" action="{% url 'server_delete' pk=server.object.pk %}">{% csrf_token %}</form>
+								<button class="btn btn-success btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="up1">&uarr; 1/3</button>
+								<button class="btn btn-info btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="down1">&darr; 1/3</button>
+								<button class="btn btn-success btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="up3">&uarr; U</button>
+								<button class="btn btn-info btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="down3">&darr; U</button>
+								<button class="btn btn-success btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="min">&uarr;max</button>
+								<button class="btn btn-info btn-xs btn-border" form="server-move-{{ server.object.pk }}" type="submit" name="position" value="max">&darr;max</button>
+								<button class="hidden server-mouse-move" form="server-move-{{ server.object.pk }}" type="submit" name="position" value=""></button>
+								<button type="submit" class="btn btn-danger btn-xs btn-border" form="server_delete-{{ server.object.pk }}" onclick="return confirm('Вы уверены?')">&times;</button>
+							</div>
+						</div>
+						<div class="modal fade" id="myModal2-{{ server.object.pk }}" tabindex="-1" role="dialog">
+							<div class="modal-dialog" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+										<h4 class="modal-title" id="myModalLabel">Заметки</h4>
+									</div>
+									<div class="modal-body">
+										<form method="post" action="{% url 'server_note_create' server.object.pk %}">
+											{% csrf_token %}
+											{{ server.note_form.as_p }}
+											<button type="submit" class="btn btn-primary">
+												Сохранить
+											</button>
+											<button type="reset" class="btn btn-default" data-dismiss="modal">
+												Отменить
+											</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+					{% for server in server_list_reverse_side %}
+						<div class="server-reverse-side" style="height: calc({{ size_match }}px * {{ server.length }}); top: calc({{ size_match }}px * {{ server.position }})"></div>
+					{% endfor %}
 				</div>
 			</div>
-			<div class="col-lg-4">
-				<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
-
-				<div class="h3 text-center">{{ object.title }}</div>
-				<div class="text-center">
-					<div class="vertical-button">
-						<div class="btn-group btn-group-justified">
-							<div class="btn-group">
-								<a type="button" class="btn btn-default" {% if not object.backside %}disabled="disabled"{% else %} href={% url 'rack_detail' pk=reverse_side.pk %}{% endif %}>Передняя сторона</a>
-							</div>
-							{% if not object.backside and not reverse_side %}
-								<div class="btn-group">
-									<a type="button" class="btn btn-link" href={% url 'rack_add_backside' pk=object.pk %}>Создать заднюю сторону</a>
-								</div>
-							{% else  %}
-								<div class="btn-group">
-									<a type="button" class="btn btn-default" {% if object.backside %}disabled="disabled"{% else %} href={% url 'rack_detail' pk=reverse_side.pk %}{% endif %}>Задняя сторона</a>
-								</div>
-							{% endif %}
+			<div class="col-lg-4 control">
+				<div class="control-zone">
+					<form id="rack-delete" method="post" action="{% url 'rack_delete' pk=object.pk %}">{% csrf_token %}</form>
+					<div class="control-zona__title h3 text-center">{{ object.title }}</div>
+					<div class="control-zona__side btn-group btn-group-justified">
+						<div class="btn-group">
+							<a type="button" class="btn btn-default" {% if not object.backside %} disabled="disabled" {% else %} href={% url 'rack_detail' pk=reverse_side.pk %} {% endif %}>Передняя сторона</a>
 						</div>
+						{% if not object.backside and not reverse_side %}
+							<div class="btn-group">
+								<a type="button" class="btn btn-link" href={% url 'rack_add_backside' pk=object.pk %}>Создать заднюю сторону</a>
+							</div>
+						{% else %}
+							<div class="btn-group">
+								<a type="button" class="btn btn-default" {% if object.backside %} disabled="disabled" {% else %} href={% url 'rack_detail' pk=reverse_side.pk %}{% endif %}>Задняя сторона</a>
+							</div>
+						{% endif %}
 					</div>
-
-					<div class="vertical-button">
-						<button
-							style="width: 100%"
-							class="btn btn-success"
-							title="Изменить параметры стойки"
-							onclick="showElement('form-server')"
-						>
-							&plus; Добавить оборудование
-						</button>
+					<button class="control-zona__btn btn btn-success" title="Изменить параметры стойки" onclick="showElement('form-server')">&plus; Добавить оборудование</button>
+					<button class="control-zona__btn btn btn-default" title="Изменить параметры стойки" onclick="showElement('rack-update')">Свойства</button>
+					<button form="rack-delete" type="submit" class="btn btn-danger" title="Удалить стойку" onclick="return confirm('{% if not object.backside %}Вы удаляете переднюю сторону. Задняя сторона также будет удалена.{% endif %} Вы уверены?')">&times; Удалить стойку</button>
+					<div class="control-zona__note">
+						{% if object.note %}
+							<pre>{{ object.note|urlize }}</pre>
+						{% endif %}
 					</div>
-
-					<div class="vertical-button">
-						<button
-							style="width: 100%"
-							class="btn btn-default"
-							title="Изменить параметры стойки"
-							onclick="showElement('rack-update')"
-						>
-							Свойства
-						</button>
+					<div id="rack-update" class="control-zona__form hidden">
+						<form method="post" action="{% url 'rack_update' pk=object.pk %}">
+							{% csrf_token %}
+							<table>{{ rack_update_form.as_table }}</table>
+							<button type="submit" class="btn btn-primary">Применить</button>
+							<button type="reset" class="btn btn-default" onclick="hideElement('rack-update')">Отменить</button>
+						</form>
 					</div>
-					<div class="vertical-button">
-						<button
-							style="width: 100%"
-							form="rack-delete"
-							type="submit"
-							class="btn btn-danger"
-							title="Удалить стойку"
-							onclick="return confirm('{% if not object.backside %}Вы удаляете переднюю сторону. Задняя сторона также будет удалена.{% endif %} Вы уверены?')"
-						>
-							&times; Удалить стойку
-						</button>
+					<div id="form-server" class="control-zona__form hidden">
+						<form method="post" action="{% url 'server_create' pk=object.pk %}">
+							{% csrf_token %}
+							<table>{{ server_creation_form.as_table }}</table>
+							<button type="submit" class="btn btn-primary">Добавить</button>
+							<button type="reset" class="btn btn-default" onclick="hideElement('form-server')">Отменить</button>
+						</form>
 					</div>
-				</div>
-				<div>
-					{% if object.note %}
-						<div class="vertical-button"><pre>{{ object.note }}</pre></div>
-					{% endif %}
-				</div>
-				<div id="rack-update" class="hidden">
-					<form method="post" action="{% url 'rack_update' pk=object.pk %}">
-						{% csrf_token %}
-						<table class='add-server__table'>
-							{{ rack_update_form.as_table }}
-						</table>
-						<button type="submit" class="btn btn-primary">Применить</button>
-						<button type="reset" class="btn btn-default" onclick="hideElement('rack-update')">Отменить</button>
-					</form>
-				</div>
-				<div id="form-server" class="hidden">
-					<form method="post" action="{% url 'server_create' pk=object.pk %}">
-						{% csrf_token %}
-						<table class='add-server__table'>
-							{{ server_creation_form.as_table }}
-						</table>
-						<button type="submit" class="btn btn-primary">Добавить</button>
-						<button type="reset" class="btn btn-default" onclick="hideElement('form-server')">Отменить</button>
-					</form>
 				</div>
 			</div>
 		</div>
 	</div>
+{% endblock %}
+{% block script_head %}
+	<script>
+	// document.addEventListener('mousedown', dragInitialHandler)
 
+	function dragInitialHandler(event) {
+		let item = event.target.closest('.server')
+		if (!item) return
+
+		let rackZona = document.querySelector('.rack-zone')
+		let snap = {{ size_match }};
+		let dragObj = {}
+
+		if (!event.ctrlKey) return
+
+		dragObj.item = item
+		dragObj.btn_submit = item.querySelector('.server-mouse-move')
+		dragObj.item.style.zIndex = '2'
+		dragObj.startY = event.y
+		dragObj.startTop = item.offsetTop
+
+		document.addEventListener('mousemove', mouseMoveHandler)
+		document.addEventListener('mouseup', mouseUpHandler)
+
+		function mouseMoveHandler(event) {
+			let diffY = event.y - dragObj.startY
+			let offsetY = diffY % snap
+
+			let value
+			if (offsetY > snap / 2) value = dragObj.startTop + diffY + snap - offsetY
+			else value = dragObj.startTop + diffY - offsetY
+
+			if (value < 0) dragObj.item.style.top = 0 + 'px'
+			else if (value > rackZona.offsetHeight - dragObj.item.offsetHeight) {
+				dragObj.item.style.top = rackZona.offsetHeight - dragObj.item.offsetHeight + 'px'
+			}
+			else dragObj.item.style.top = value + 'px'
+		}
+
+		function mouseUpHandler(event) {
+			document.removeEventListener('mousemove', mouseMoveHandler)
+			document.removeEventListener('mouseup', mouseUpHandler)
+
+			dragObj.item.style.zIndex = '1'
+			dragObj.btn_submit.value = dragObj.item.offsetTop / {{ size_match }};
+			dragObj.btn_submit.click()
+		}
+	}
+	</script>
+{% endblock %}
+{% block style %}
 	<style>
-		div.rack tr, div.rack td {
-			border: 1px solid #888888;
-			text-align: center;
-			height: 10px;
+		.rack {
+			display: flex;
+			margin: 5px 0;
 		}
-
-		div.rack table {
+		.scale {
+			display: flex;
+			width: 30px;
+			flex-direction: column;
+		}
+		.scale__row {
+			display: flex;
+			justify-content: space-between;
+			height: calc({{ size_match }}px * 3);
+			border-bottom: 1px solid black;
+		}
+		.scale__row__unit {
+			display: flex;
+			align-items: center;
+			font-weight: bold;
+			font-style: italic;
+		}
+		.scale__row__under-unit {
+			width: 10px;
+		}
+		.scale__row__under-unit__item {
+			height: {{ size_match }}px;
+			border-bottom: 1px solid black;
+		}
+		.rack-zone {
+			position: relative;
+			flex-grow: 1;
+			outline: 1px solid black;
+			height: calc({{ size_match }}px * {{ object.size }});
+		}
+		.server {
+			display: flex;
+			align-items: center;
+			position: absolute;
 			width: 100%;
-			margin-bottom: 10px;
+			border: 1px solid black;
+			border-radius: 2px;
+			z-index: 1;
 		}
-
-		.server-info__name {
-			padding-left: 10px;
-			padding-right: 10px;
-			background-color: rgba(110, 110, 110, 0.54);
-			border-radius: 4px;
-			font-size: 15px;
-			color: #ffffff;
+		.server__note-block {
+			padding-left: 3px;
 		}
-
-		.server-info__name:hover {
-			color: #cccccc;
+		.server__title-block {
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+			align-items: center;
 		}
-
-		.server-info__note-block {
-			white-space: nowrap;
-			text-overflow: ellipsis;
-		}
-
-		.server-info__note-block__text {
-			padding: 2px 10px 2px 10px;
-			background-color: rgba(199, 199, 199, 0.56);
+		.server__title-block__name {
+			padding: 0 10px;
+			background: rgba(110, 110, 110, 0.5);
 			border-radius: 5px;
-			font-size: 10px;
-		}
-
-		.numerator-row {
-			width: 5%;
+			color: #eaeaea;
+			font-weight: bold;
 			font-size: 15px;
-			font-style: oblique;
 		}
-
-		.add-server__table {
-			border-collapse: separate;
-			border-spacing: 10px 5px;
-			margin: 10px 1px 10px 1px;
-			background: rgba(213, 213, 213, 0.51);
-			border-radius: 10px;
-			padding: 10px;
+		.server__title-block__name:hover {
+			color: #c9c9c9;
 		}
-
-		.rack-row-move {
-			border-color: #0f0f0f;
+		.server__title-block__note {
+			width: max-content;
+			background: rgba(199, 199, 199, 0.56);
+			font-size: 10px;
+			border-radius: 5px;
+			padding: 0 10px;
 		}
-
-		.vertical-button {
+		.server__control-block {
+			padding-right: 3px;
+		}
+		.server-reverse-side {
+			position: absolute;
 			width: 100%;
-			margin: 10px;
-		}
-
-		.stripes {
+			z-index: 0;
 			background: repeating-linear-gradient(45deg, #e0e0e0, #d9d9d9 10px, #cecece 10px, #c5c5c5 20px);
+		}
+		.control-zone {
+			display: flex;
+			flex-direction: column;
+			justify-items: stretch;
+		}
+		.control-zone > * {
+			margin: 3px 0;
+		}
+		.control-zona__form {
+			padding: 15px;
+			background: rgba(213, 213, 213, 0.5);
+			border-radius: 10px;
+		}
+		.control-zona__form table {
+			border-collapse: separate;
+			border-spacing: 0 5px;
+		}
+		.btn-border {
+			border: 1px solid #0f0f0f;
 		}
 	</style>
 {% endblock %}
+

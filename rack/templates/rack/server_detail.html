@@ -41,7 +41,7 @@
 						</tr>
 						<tr>
 							<td>Заметки:</td>
-							<td>{{ object.note }}</td>
+							<td>{{ object.note|urlize }}</td>
 						</tr>
 						<tr>
 							<td>&nbsp;</td>
@@ -131,7 +131,7 @@
 								<td></td>
 								<td></td>
 								{% if i.port.note %}
-									<td>{{ i.port.note }}</td>
+									<td>{{ i.port.note|urlize }}</td>
 								{% endif %}
 							</tr>
 							<tr>

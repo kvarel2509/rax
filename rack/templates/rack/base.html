@@ -20,17 +20,18 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 		<!-- bootstrap-icons -->
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-	</head>
-	<body>
+		{% block script_head %}
+
+		{% endblock %}
 		<script>
 			function showElement(id) {
 				let element = document.getElementById(id)
-				element.setAttribute('class', 'show')
+				element.classList.remove('hidden')
 			}
 
 			function hideElement(id) {
 				let element = document.getElementById(id)
-				element.setAttribute('class', 'hidden')
+				element.classList.add('hidden')
 			}
 
 			function selectAllPorts() {
@@ -41,6 +42,8 @@
 				}
 			}
 		</script>
+	</head>
+	<body>
 		<nav class="navbar navbar-default">
 			<div class="container">
 				<!-- Brand and toggle get grouped for better mobile display -->
@@ -87,10 +90,18 @@
 					{% endfor %}
 				{% endif %}
 			</div>
+			<div class="row">
+				{% block content %}
 
-			{% block content %}
+				{% endblock %}
+			</div>
 
-			{% endblock %}
 		</div>
+		{% block script_body %}
+
+		{% endblock %}
 	</body>
+	{% block style %}
+
+	{% endblock %}
 </html>
