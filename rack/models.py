@@ -70,4 +70,5 @@ class LinkPort(models.Model):
 
 
 class FavoriteColor(models.Model):
+	title = models.CharField('Название', max_length=30)
 	color = models.CharField('Цвет', max_length=30)

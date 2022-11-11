@@ -11,29 +11,42 @@
 		{% endif %}
 	{% endfor %}
 	>
-	{% for color in favorite_colors %}
-		<div class="favorite-color" onclick="this.parentNode.firstElementChild.value = '{{ color }}'" style="background: {{ color }}"></div>
-	{% endfor %}
+	<div class="favorite-colors">
+		{% for item in widget.favorite_colors %}
+			<div
+				class="favorite-color"
+				onclick="this.parentElement.previousElementSibling.value = '{{ item.color }}'"
+				style="background: {{ item.color }}"
+			>
+				{{ item.title }}
+			</div>
+		{% endfor %}
+	</div>
+
 </div>
 
 <style>
 	.color-widget__as23f {
 		display: grid;
-		grid-template-columns: repeat(12, max-content);
-		grid-template-rows: repeat(12, max-content);
+		grid-template-columns: max-content auto;
 		width: inherit;
-		place-items: center;
+		place-items: center start;
 	}
-	.color-widget__as23f input {
-		margin: 0 10px 0 0;
-		grid-row: 1 / -1;
+	.favorite-colors {
+		display: grid;
+		margin: 0 5px;
+		grid-gap: 1px;
+		grid-template-columns: repeat(2, 1fr);
+		justify-items: stretch;
 	}
 	.favorite-color {
 		border: 1px solid black;
-		width: 15px;
-		height: 15px;
 		border-radius: 3px;
 		cursor: pointer;
-		margin: 1px;
+		padding: 0 5px;
+		text-align: center;
+		text-shadow: 0 0 2px white;
+		font-size: 10px;
+		font-weight: bold;
 	}
 </style>
