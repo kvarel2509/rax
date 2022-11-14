@@ -34,7 +34,7 @@ class ServerUpdateForm(forms.ModelForm):
 		model = Server
 		fields = ['title', 'color', 'note', 'base_speed', 'base_material']
 		widgets = {
-			'color': ColorInput(favorite_colors=FavoriteColor.objects.all()),
+			'color': ColorInput(favorite_colors=lambda: FavoriteColor.objects.all()),
 			'note':  forms.Textarea(attrs={'rows': 5})
 		}
 
@@ -44,7 +44,7 @@ class ServerCreateForm(forms.ModelForm):
 	unit = forms.ChoiceField(label='Мера', choices=(('u', 'u'), ('1/3u', '1/3u')))
 	count_ports = forms.IntegerField(label='Портов', min_value=0, initial=1)
 	color = forms.CharField(
-		label='Цвет', widget=ColorInput(favorite_colors=FavoriteColor.objects.all()), initial='#c9c9c9'
+		label='Цвет', widget=ColorInput(favorite_colors=lambda: FavoriteColor.objects.all()), initial='#c9c9c9'
 	)
 
 	class Meta:
@@ -111,7 +111,7 @@ class PortForm(forms.ModelForm):
 		model = Port
 		fields = ['color', 'speed', 'material', 'note', 'connection']
 		widgets = {
-			'color': ColorInput(favorite_colors=FavoriteColor.objects.all()),
+			'color': ColorInput(favorite_colors=lambda: FavoriteColor.objects.all()),
 			'note': forms.Textarea(attrs={'rows': 3, }),
 			'connection': forms.Textarea(attrs={'rows': 3, }),
 		}
@@ -162,7 +162,7 @@ class PortCreateForm(PortForm):
 		fields = ['color', 'speed', 'material', 'note', 'count', 'server']
 		widgets = ({
 			'server': forms.HiddenInput(),
-			'color': ColorInput(favorite_colors=FavoriteColor.objects.all()),
+			'color': ColorInput(favorite_colors=lambda: FavoriteColor.objects.all()),
 			'note': forms.Textarea(attrs={'rows': 3, }),
 			'connection': forms.Textarea(attrs={'rows': 3, }),
 		})
